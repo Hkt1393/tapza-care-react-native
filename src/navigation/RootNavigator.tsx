@@ -91,7 +91,7 @@ const MainTabs = (): React.ReactElement => {
 
   return (
     <View style={[styles.appRoot, { backgroundColor: background }]}>
-      {/* <StatusBar style={resolveStatusBarStyle(background)} animated /> */}
+      <StatusBar style={resolveStatusBarStyle('white')} animated />
       <Tabs.Navigator
         initialRouteName="Home"
         backBehavior="firstRoute"
