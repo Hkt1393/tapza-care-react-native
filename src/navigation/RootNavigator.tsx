@@ -1,9 +1,9 @@
 import type React from 'react';
 
-import ExampleScreen from '../screens/ExampleScreen';
+import HomeScreen from '../screens/HomeScreen';
 
 const RootNavigator = (): React.ReactElement => {
-  return <ExampleScreen />;
+  return <HomeScreen />;
 };
 
 export default RootNavigator;
