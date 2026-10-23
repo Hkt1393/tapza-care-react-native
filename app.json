@@ -9,6 +9,15 @@
     "ios": {
       "supportsTablet": true
     },
+    "plugins": [
+      [
+        "expo-status-bar",
+        {
+          "hidden": false,
+          "style": "light"
+        }
+      ]
+    ],
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -16,10 +25,20 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.himanshu.tapzacare"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "expo-status-bar": {
+        "style": "light",
+        "hidden": false
+      },
+      "eas": {
+        "projectId": "e499e7e2-4cf2-40f5-93d6-d410cafa046c"
+      }
     }
   }
 }

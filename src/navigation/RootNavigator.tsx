@@ -1,6 +1,8 @@
 import type React from 'react';
+import { useEffect } from 'react';
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -13,6 +15,7 @@ import BookScreen from '../screens/BookScreen';
 import DosesScreen from '../screens/DosesScreen';
 import { strings } from '../constants/strings';
 import { colors } from '../theme/colors';
+import { resolveStatusBarStyle } from '../theme/runtimeTheme';
 import { RuntimeThemeProvider, useRuntimeThemeContext } from '../theme/RuntimeThemeContext';
 import type {
   HomeStackParamList,
@@ -80,10 +83,15 @@ const MainTabs = (): React.ReactElement => {
   const inactive = activeTheme?.textSecondary ?? colors.textMuted;
   const surface = activeTheme?.surface ?? colors.surface;
   const border = activeTheme?.surfaceTint ?? colors.surfaceMuted;
+  const background = activeTheme?.background ?? colors.background;
+
+  useEffect(() => {
+    void SystemUI.setBackgroundColorAsync(background);
+  }, [background]);
 
   return (
-    <View style={[styles.appRoot, { backgroundColor: activeTheme?.background ?? colors.background }]}>
-      <StatusBar style="dark" />
+    <View style={[styles.appRoot, { backgroundColor: background }]}>
+      {/* <StatusBar style={resolveStatusBarStyle(background)} animated /> */}
       <Tabs.Navigator
         initialRouteName="Home"
         backBehavior="firstRoute"

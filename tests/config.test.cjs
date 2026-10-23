@@ -4,7 +4,7 @@ const { normalDayConfig, diwaliConfig } = require('../.test-build/src/features/c
 const { LAST_VALID_CONFIG_KEY } = require('../.test-build/src/features/config/configCache.js');
 const { validateLayoutConfig, ConfigValidationError } = require('../.test-build/src/features/config/validateConfig.js');
 const { createMockDataAccess } = require('../.test-build/src/services/mock/mockDataAccess.js');
-const { resolveRuntimeTheme } = require('../.test-build/src/theme/runtimeTheme.js');
+const { resolveRuntimeTheme, resolveStatusBarStyle } = require('../.test-build/src/theme/runtimeTheme.js');
 const { colors } = require('../.test-build/src/theme/colors.js');
 
 const contrastRatio = (foreground, background) => {
@@ -56,6 +56,12 @@ test('small runtime and success text colors meet 4.5:1 contrast in both themes',
     assert.ok(contrastRatio(theme.textSecondary, theme.background) >= 4.5);
     assert.ok(contrastRatio(theme.successText, theme.surface) >= 4.5);
   }
+});
+
+test('status bar content contrasts with the active theme background', () => {
+  assert.equal(resolveStatusBarStyle(normalDayConfig.theme.background), 'dark');
+  assert.equal(resolveStatusBarStyle(diwaliConfig.theme.background), 'dark');
+  assert.equal(resolveStatusBarStyle('#153632'), 'light');
 });
 
 test('unknown section types are retained and malformed config is rejected', () => {

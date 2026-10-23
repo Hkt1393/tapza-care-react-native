@@ -50,6 +50,9 @@ const relativeLuminance = (hex: string): number => {
 export const contrastingTextColor = (background: string): string =>
   relativeLuminance(background) > 0.179 ? colors.black : colors.white;
 
+export const resolveStatusBarStyle = (background: string): 'dark' | 'light' =>
+  contrastingTextColor(background) === colors.black ? 'dark' : 'light';
+
 export const resolveRuntimeTheme = (config: LayoutConfig): RuntimeThemeTokens => ({
   primary: config.theme.primary,
   secondary: config.theme.secondary,
