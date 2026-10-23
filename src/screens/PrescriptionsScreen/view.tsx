@@ -1,9 +1,9 @@
 import type React from 'react';
-import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppPressable, AppText, SkeletonBlock } from '../../components';
 import { strings } from '../../constants/strings';
-import { colors } from '../../theme/colors';
 import type { PrescriptionListItem } from '../../features/prescriptions/types';
 import styles from './styles';
 
@@ -20,30 +20,40 @@ interface PrescriptionsScreenViewProps {
 const PrescriptionsScreenView = ({ items, loadState, onOpen, onRetry, onBack }: PrescriptionsScreenViewProps): React.ReactElement => (
   <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
     <View style={styles.header}>
-      <Pressable accessibilityRole="button" accessibilityLabel={strings.prescriptions.home} onPress={onBack} style={styles.backButton}>
-        <Text style={styles.backGlyph}>‹</Text>
-        <Text style={styles.backLabel}>{strings.prescriptions.home}</Text>
-      </Pressable>
-      <Text style={styles.title}>{strings.prescriptions.title}</Text>
-      <Text style={styles.subtitle}>{strings.prescriptions.subtitle}</Text>
+      <AppPressable accessibilityRole="button" accessibilityLabel={strings.prescriptions.home} onPress={onBack} style={styles.backButton}>
+        <AppText style={styles.backGlyph}>‹</AppText>
+        <AppText style={styles.backLabel}>{strings.prescriptions.home}</AppText>
+      </AppPressable>
+      <AppText style={styles.title}>{strings.prescriptions.title}</AppText>
+      <AppText style={styles.subtitle}>{strings.prescriptions.subtitle}</AppText>
     </View>
 
     {loadState === 'loading' ? (
-      <View style={styles.stateContainer} accessibilityRole="progressbar" accessibilityLabel={strings.common.loading}>
-        <ActivityIndicator color={colors.primary} size="large" />
+      <View style={styles.skeletonList} accessibilityRole="progressbar" accessibilityLabel={strings.common.loading}>
+        {[0, 1, 2].map((item) => (
+          <View key={item} style={styles.skeletonCard}>
+            <SkeletonBlock style={styles.skeletonDoctor} />
+            <SkeletonBlock style={styles.skeletonDate} />
+            <SkeletonBlock style={styles.skeletonClinic} />
+            <View style={styles.skeletonFooter}>
+              <SkeletonBlock style={styles.skeletonFooterLine} />
+              <SkeletonBlock style={styles.skeletonDate} />
+            </View>
+          </View>
+        ))}
       </View>
     ) : loadState === 'error' ? (
       <View style={styles.stateContainer} accessibilityRole="alert">
-        <Text style={styles.stateTitle}>{strings.prescriptions.loadErrorTitle}</Text>
-        <Text style={styles.stateMessage}>{strings.prescriptions.loadErrorMessage}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel={strings.prescriptions.retry} onPress={onRetry} style={styles.primaryButton}>
-          <Text style={styles.primaryButtonLabel}>{strings.prescriptions.retry}</Text>
-        </Pressable>
+        <AppText style={styles.stateTitle}>{strings.prescriptions.loadErrorTitle}</AppText>
+        <AppText style={styles.stateMessage}>{strings.prescriptions.loadErrorMessage}</AppText>
+        <AppPressable accessibilityRole="button" accessibilityLabel={strings.prescriptions.retry} onPress={onRetry} style={styles.primaryButton}>
+          <AppText style={styles.primaryButtonLabel}>{strings.prescriptions.retry}</AppText>
+        </AppPressable>
       </View>
     ) : loadState === 'empty' ? (
       <View style={styles.stateContainer} accessibilityRole="alert">
-        <Text style={styles.stateTitle}>{strings.prescriptions.emptyTitle}</Text>
-        <Text style={styles.stateMessage}>{strings.prescriptions.emptyMessage}</Text>
+        <AppText style={styles.stateTitle}>{strings.prescriptions.emptyTitle}</AppText>
+        <AppText style={styles.stateMessage}>{strings.prescriptions.emptyMessage}</AppText>
       </View>
     ) : (
       <FlatList
@@ -52,21 +62,21 @@ const PrescriptionsScreenView = ({ items, loadState, onOpen, onRetry, onBack }: 
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Pressable
+          <AppPressable
             accessibilityRole="button"
             accessibilityLabel={item.accessibilityLabel}
             accessibilityHint={strings.prescriptions.medicinesHeading}
             onPress={() => onOpen(item.id)}
             style={styles.card}
           >
-            <Text style={styles.doctor}>{strings.prescriptions.issuedBy(item.doctorName)}</Text>
-            <Text style={styles.date}>{strings.prescriptions.issuedOn(item.issuedAtLabel)}</Text>
-            <Text style={styles.clinic}>{item.clinicName}</Text>
+            <AppText style={styles.doctor}>{strings.prescriptions.issuedBy(item.doctorName)}</AppText>
+            <AppText style={styles.date}>{strings.prescriptions.issuedOn(item.issuedAtLabel)}</AppText>
+            <AppText style={styles.clinic}>{item.clinicName}</AppText>
             <View style={styles.cardFooter}>
-              <Text style={styles.medicineCount}>{item.medicineCountLabel}</Text>
-              <Text style={styles.progress}>{item.doseProgressLabel}</Text>
+              <AppText style={styles.medicineCount}>{item.medicineCountLabel}</AppText>
+              <AppText style={styles.progress}>{item.doseProgressLabel}</AppText>
             </View>
-          </Pressable>
+          </AppPressable>
         )}
       />
     )}

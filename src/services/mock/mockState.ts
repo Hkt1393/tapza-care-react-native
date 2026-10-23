@@ -1,15 +1,22 @@
 import type { Booking, DoseTakenState, DoseTakenUpdate, Slot } from '../../types/domain';
 import { BookingConflictError, DoseTrackingError, getDoseTrackingKey } from '../../types/domain';
-import { prescriptionFixtures, slotFixtures } from './fixtures';
+import { prescriptionFixtures } from './fixtures';
 
-export const createMockState = () => {
-  let slots: Slot[] = slotFixtures.map((slot) => ({ ...slot }));
+export const createMockState = (createSlots: () => readonly Slot[]) => {
+  let slots: Slot[] = createSlots().map((slot) => ({ ...slot }));
   let bookings: Booking[] = [];
   let takenDoses: DoseTakenState = {};
 
   const getSlots = (): Slot[] => slots.map((slot) => ({ ...slot }));
+  const refreshSlots = (nextSlots: readonly Slot[]): void => {
+    const currentAvailability = new Map(slots.map((slot) => [slot.id, slot.available]));
+    slots = nextSlots.map((slot) => ({
+      ...slot,
+      available: currentAvailability.get(slot.id) ?? slot.available,
+    }));
+  };
   const reset = (): void => {
-    slots = slotFixtures.map((slot) => ({ ...slot }));
+    slots = createSlots().map((slot) => ({ ...slot }));
     bookings = [];
     takenDoses = {};
   };
@@ -54,5 +61,5 @@ export const createMockState = () => {
     return { ...booking };
   };
 
-  return { getSlots, reserve, getDoseTakenState, setDoseTakenState, reset };
+  return { getSlots, refreshSlots, reserve, getDoseTakenState, setDoseTakenState, reset };
 };

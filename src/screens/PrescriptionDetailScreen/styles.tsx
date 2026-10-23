@@ -171,6 +171,61 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
   },
+  skeletonContent: {
+    flex: 1,
+    gap: spacing.md,
+    padding: spacing.lg,
+    width: '100%',
+  },
+  skeletonInfo: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: dimensions.borderRadius,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  skeletonDoctor: {
+    height: 22,
+    width: '68%',
+  },
+  skeletonDate: {
+    height: 16,
+    width: '44%',
+  },
+  skeletonClinic: {
+    height: 16,
+    width: '82%',
+  },
+  skeletonHeading: {
+    height: 24,
+    width: '52%',
+  },
+  skeletonMedicine: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: dimensions.borderRadius,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  skeletonMedicineName: {
+    height: 20,
+    width: '72%',
+  },
+  skeletonDose: {
+    height: 16,
+    width: '58%',
+  },
+  skeletonDoseRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  skeletonDoseButton: {
+    height: 44,
+    width: 118,
+  },
   stateTitle: {
     color: colors.text,
     fontSize: typography.h3,

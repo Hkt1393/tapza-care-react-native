@@ -44,6 +44,43 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingTop: spacing.xs,
   },
+  skeletonList: {
+    flex: 1,
+    gap: spacing.md,
+    padding: spacing.lg,
+    paddingTop: spacing.xs,
+  },
+  skeletonCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: dimensions.borderRadius,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  skeletonDoctor: {
+    height: 22,
+    width: '64%',
+  },
+  skeletonDate: {
+    height: 16,
+    width: '42%',
+  },
+  skeletonClinic: {
+    height: 16,
+    width: '82%',
+  },
+  skeletonFooter: {
+    borderTopColor: colors.border,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+    paddingTop: spacing.sm,
+  },
+  skeletonFooterLine: {
+    height: 16,
+    width: '48%',
+  },
   card: {
     backgroundColor: colors.surface,
     borderColor: colors.border,

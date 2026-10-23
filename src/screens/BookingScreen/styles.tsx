@@ -84,6 +84,15 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingVertical: spacing.sm,
   },
+  dateSkeletonRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+  },
+  dateSkeleton: {
+    height: 44,
+    width: 76,
+  },
   dateButton: {
     alignItems: 'center',
     borderRadius: dimensions.borderRadiusSmall,
@@ -102,6 +111,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.sm,
     paddingTop: spacing.sm,
+  },
+  slotSkeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    paddingTop: spacing.sm,
+  },
+  slotSkeleton: {
+    height: 48,
+    width: '30%',
   },
   slotButton: {
     alignItems: 'center',

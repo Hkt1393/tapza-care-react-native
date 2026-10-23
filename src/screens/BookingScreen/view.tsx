@@ -5,13 +5,12 @@ import {
   Animated,
   Modal,
   PanResponder,
-  Pressable,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppPressable, AppText, SkeletonBlock } from '../../components';
 import { strings } from '../../constants/strings';
 import { colors, spacing } from '../../theme';
 import type { Slot } from '../../types/domain';
@@ -82,49 +81,53 @@ const BookingScreenView = ({
   return (
     <Modal animationType="slide" transparent visible onRequestClose={onClose} statusBarTranslucent>
       <View style={styles.scrim}>
-        <Pressable accessibilityRole="button" accessibilityLabel={strings.booking.actions.close} onPress={onClose} style={styles.scrimDismiss} />
+        <AppPressable accessibilityRole="button" accessibilityLabel={strings.booking.actions.close} onPress={onClose} style={styles.scrimDismiss} />
         <SafeAreaView style={[styles.sheet, { backgroundColor: resolvedTheme.surface }]} edges={['bottom']}>
           <View style={styles.dragRegion} {...panResponder.panHandlers} accessibilityHint={strings.booking.dragHint}>
             <View style={[styles.dragHandle, { backgroundColor: resolvedTheme.textSecondary }]} />
           </View>
           <View style={styles.header}>
             <View style={styles.headerText}>
-              <Text style={[styles.title, { color: resolvedTheme.textPrimary }]}>{strings.booking.title}</Text>
-              <Text style={[styles.provider, { color: resolvedTheme.textSecondary }]}>{target.providerName} · {target.specialty}</Text>
-              {target.serviceName ? <Text style={[styles.service, { color: resolvedTheme.textSecondary }]}>{strings.booking.serviceLabel}: {target.serviceName}</Text> : null}
-              <Text style={[styles.fee, { color: resolvedTheme.primary }]}>{target.serviceName ? strings.booking.servicePriceLabel : strings.booking.feeLabel}: ₹{target.feeInr.toLocaleString('en-IN')}</Text>
+              <AppText style={[styles.title, { color: resolvedTheme.textPrimary }]}>{strings.booking.title}</AppText>
+              <AppText style={[styles.provider, { color: resolvedTheme.textSecondary }]}>{target.providerName} · {target.specialty}</AppText>
+              {target.serviceName ? <AppText style={[styles.service, { color: resolvedTheme.textSecondary }]}>{strings.booking.serviceLabel}: {target.serviceName}</AppText> : null}
+              <AppText style={[styles.fee, { color: resolvedTheme.primary }]}>{target.serviceName ? strings.booking.servicePriceLabel : strings.booking.feeLabel}: ₹{target.feeInr.toLocaleString('en-IN')}</AppText>
             </View>
-            <Pressable
+            <AppPressable
               accessibilityRole="button"
               accessibilityLabel={strings.booking.actions.close}
               onPress={onClose}
               hitSlop={spacing.xs}
               style={styles.closeButton}
             >
-              <Text style={[styles.closeLabel, { color: resolvedTheme.textPrimary }]}>×</Text>
-            </Pressable>
+              <AppText style={[styles.closeLabel, { color: resolvedTheme.textPrimary }]}>×</AppText>
+            </AppPressable>
           </View>
 
           <ScrollView style={styles.contentScroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {bookingState === 'success' ? (
             <View style={styles.successState} accessibilityRole="alert">
               <Animated.View style={[styles.successMark, { backgroundColor: resolvedTheme.primary, transform: [{ scale: successScale }] }]}>
-                <Text style={[styles.successCheck, { color: resolvedTheme.onPrimary }]}>✓</Text>
+                <AppText style={[styles.successCheck, { color: resolvedTheme.onPrimary }]}>✓</AppText>
               </Animated.View>
-              <Text style={[styles.successTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.successTitle}</Text>
-              <Text style={[styles.stateMessage, { color: resolvedTheme.textSecondary }]}>{strings.booking.successMessage}</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel={strings.booking.actions.close} onPress={onClose} style={[styles.primaryButton, { backgroundColor: resolvedTheme.primary }]}>
-                <Text style={[styles.primaryButtonText, { color: resolvedTheme.onPrimary }]}>{strings.common.done}</Text>
-              </Pressable>
+              <AppText style={[styles.successTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.successTitle}</AppText>
+              <AppText style={[styles.stateMessage, { color: resolvedTheme.textSecondary }]}>{strings.booking.successMessage}</AppText>
+              <AppPressable accessibilityRole="button" accessibilityLabel={strings.booking.actions.close} onPress={onClose} style={[styles.primaryButton, { backgroundColor: resolvedTheme.primary }]}>
+                <AppText style={[styles.primaryButtonText, { color: resolvedTheme.onPrimary }]}>{strings.common.done}</AppText>
+              </AppPressable>
             </View>
           ) : (
             <>
-              <Text style={[styles.sectionTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.dateHeading}</Text>
+              <AppText style={[styles.sectionTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.dateHeading}</AppText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateList} accessibilityLabel={strings.booking.actions.chooseDate}>
-                {dates.map((date) => {
+                {loadState === 'loading' && dates.length === 0 ? (
+                  <View style={styles.dateSkeletonRow} accessibilityElementsHidden>
+                    {[0, 1, 2, 3].map((item) => <SkeletonBlock key={item} style={styles.dateSkeleton} />)}
+                  </View>
+                ) : dates.map((date) => {
                   const selected = date.key === selectedDate;
                   return (
-                    <Pressable
+                    <AppPressable
                       key={date.key}
                       accessibilityRole="button"
                       accessibilityLabel={date.accessibilityLabel}
@@ -133,30 +136,35 @@ const BookingScreenView = ({
                       onPress={() => onDateSelect(date.key)}
                       style={[styles.dateButton, { borderColor: selected ? resolvedTheme.primary : colors.border, backgroundColor: selected ? resolvedTheme.primary : resolvedTheme.surface }]}
                     >
-                      <Text style={[styles.dateLabel, { color: selected ? resolvedTheme.onPrimary : resolvedTheme.textPrimary }]}>{date.label}</Text>
-                    </Pressable>
+                      <AppText style={[styles.dateLabel, { color: selected ? resolvedTheme.onPrimary : resolvedTheme.textPrimary }]}>{date.label}</AppText>
+                    </AppPressable>
                   );
                 })}
               </ScrollView>
 
-              <Text style={[styles.sectionTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.actions.chooseSlot}</Text>
+              <AppText style={[styles.sectionTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.actions.chooseSlot}</AppText>
               {loadState === 'loading' ? (
-                <View style={styles.stateContainer} accessibilityRole="progressbar">
-                  <ActivityIndicator color={resolvedTheme.primary} />
-                  <Text style={[styles.stateMessage, { color: resolvedTheme.textSecondary }]}>{strings.booking.loadingSlots}</Text>
+                <View
+                  style={styles.slotSkeletonGrid}
+                  accessibilityRole="progressbar"
+                  accessibilityLabel={strings.common.loading}
+                >
+                  {[0, 1, 2, 3, 4, 5].map((item) => (
+                    <SkeletonBlock key={item} style={styles.slotSkeleton} />
+                  ))}
                 </View>
               ) : loadState === 'error' ? (
                 <View style={styles.stateContainer} accessibilityRole="alert">
-                  <Text style={[styles.stateTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.loadErrorTitle}</Text>
-                  <Text style={[styles.stateMessage, { color: resolvedTheme.textSecondary }]}>{strings.booking.loadErrorMessage}</Text>
-                  <Pressable accessibilityRole="button" accessibilityLabel={strings.booking.actions.retry} onPress={onRetry} style={[styles.secondaryButton, { borderColor: resolvedTheme.primary }]}>
-                    <Text style={[styles.secondaryButtonText, { color: resolvedTheme.primary }]}>{strings.booking.actions.retry}</Text>
-                  </Pressable>
+                  <AppText style={[styles.stateTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.loadErrorTitle}</AppText>
+                  <AppText style={[styles.stateMessage, { color: resolvedTheme.textSecondary }]}>{strings.booking.loadErrorMessage}</AppText>
+                  <AppPressable accessibilityRole="button" accessibilityLabel={strings.booking.actions.retry} onPress={onRetry} style={[styles.secondaryButton, { borderColor: resolvedTheme.primary }]}>
+                    <AppText style={[styles.secondaryButtonText, { color: resolvedTheme.primary }]}>{strings.booking.actions.retry}</AppText>
+                  </AppPressable>
                 </View>
               ) : loadState === 'empty' ? (
                 <View style={styles.stateContainer} accessibilityRole="alert">
-                  <Text style={[styles.stateTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.emptyTitle}</Text>
-                  <Text style={[styles.stateMessage, { color: resolvedTheme.textSecondary }]}>{strings.booking.emptyMessage}</Text>
+                  <AppText style={[styles.stateTitle, { color: resolvedTheme.textPrimary }]}>{strings.booking.emptyTitle}</AppText>
+                  <AppText style={[styles.stateMessage, { color: resolvedTheme.textSecondary }]}>{strings.booking.emptyMessage}</AppText>
                 </View>
               ) : (
                 <View style={styles.slotGrid}>
@@ -164,7 +172,7 @@ const BookingScreenView = ({
                     const selected = slot.id === selectedSlotId;
                     const time = formatSlotTime(slot.startsAt);
                     return (
-                      <Pressable
+                      <AppPressable
                         key={slot.id}
                         accessibilityRole="button"
                         accessibilityLabel={strings.booking.slotAccessibility(time, slot.available)}
@@ -173,17 +181,17 @@ const BookingScreenView = ({
                         onPress={() => onSlotSelect(slot.id)}
                         style={[styles.slotButton, { borderColor: selected ? resolvedTheme.primary : colors.border, backgroundColor: selected ? resolvedTheme.primary : resolvedTheme.surface }, !slot.available && styles.unavailableSlot]}
                       >
-                        <Text style={[styles.slotLabel, { color: selected ? resolvedTheme.onPrimary : resolvedTheme.textPrimary }]}>{time}</Text>
-                      </Pressable>
+                        <AppText style={[styles.slotLabel, { color: selected ? resolvedTheme.onPrimary : resolvedTheme.textPrimary }]}>{time}</AppText>
+                      </AppPressable>
                     );
                   })}
                 </View>
               )}
 
-              {bookingState === 'conflict' ? <Text accessibilityRole="alert" style={[styles.inlineError, { color: colors.error }]}>{strings.booking.conflict}</Text> : null}
-              {bookingState === 'error' ? <Text accessibilityRole="alert" style={[styles.inlineError, { color: colors.error }]}>{strings.booking.bookingError}</Text> : null}
+              {bookingState === 'conflict' ? <AppText accessibilityRole="alert" style={[styles.inlineError, { color: colors.error }]}>{strings.booking.conflict}</AppText> : null}
+              {bookingState === 'error' ? <AppText accessibilityRole="alert" style={[styles.inlineError, { color: colors.error }]}>{strings.booking.bookingError}</AppText> : null}
               {canConfirm ? (
-                <Pressable
+                <AppPressable
                   accessibilityRole="button"
                   accessibilityLabel={strings.booking.actions.confirm}
                   accessibilityState={{ disabled: isSubmitting }}
@@ -192,8 +200,8 @@ const BookingScreenView = ({
                   style={[styles.primaryButton, { backgroundColor: resolvedTheme.primary }, isSubmitting && styles.disabledButton]}
                 >
                   {isSubmitting ? <ActivityIndicator color={resolvedTheme.onPrimary} /> : null}
-                  <Text style={[styles.primaryButtonText, { color: resolvedTheme.onPrimary }]}>{strings.booking.actions.confirm}</Text>
-                </Pressable>
+                  <AppText style={[styles.primaryButtonText, { color: resolvedTheme.onPrimary }]}>{strings.booking.actions.confirm}</AppText>
+                </AppPressable>
               ) : null}
             </>
           )}

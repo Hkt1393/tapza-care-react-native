@@ -44,3 +44,50 @@ test('selecting Diwali changes the served theme, banner, order, and section item
   assert.equal(diwali.sections[0].title, 'Celebrate a healthier Diwali');
   assert.notDeepEqual(diwali.sections[1].items, normal.sections[1].items);
 });
+
+test('HomeSectionRenderer renders a section and safely skips unknown types', () => {
+  const Module = require('node:module');
+  const originalLoad = Module._load;
+  Module._load = function loadWithNativeStubs(request, parent, isMain) {
+    if (request === 'react-native') {
+      return {
+        Image: 'Image',
+        ImageBackground: 'ImageBackground',
+        Platform: { select: (options) => options.default ?? options.ios ?? options.android },
+        ScrollView: 'ScrollView',
+        StyleSheet: { create: (value) => value },
+        View: 'View',
+      };
+    }
+    if (request === 'expo-linear-gradient') return { LinearGradient: 'LinearGradient' };
+    if (request === '../../../components') return { AppPressable: 'AppPressable', AppText: 'AppText' };
+    return originalLoad.call(this, request, parent, isMain);
+  };
+
+  let HomeSectionRenderer;
+  try {
+    HomeSectionRenderer = require('../.test-build/src/features/home/components/HomeSectionRenderer.js').default;
+  } finally {
+    Module._load = originalLoad;
+  }
+
+  const config = configFixtures.normal;
+  const theme = require('../.test-build/src/theme/runtimeTheme.js').resolveRuntimeTheme(config);
+  const hero = config.sections.find((section) => section.type === 'hero_banner');
+  const rendered = HomeSectionRenderer({ section: hero, theme });
+  assert.equal(rendered.type, 'View');
+
+  const findElements = (node, type, matches = []) => {
+    if (Array.isArray(node)) {
+      node.forEach((child) => findElements(child, type, matches));
+    } else if (node && typeof node === 'object') {
+      if (node.type === type) matches.push(node);
+      findElements(node.props?.children, type, matches);
+    }
+    return matches;
+  };
+  const textElements = findElements(rendered, 'AppText');
+  assert.ok(textElements.some((element) => element.props.children === hero.title));
+
+  assert.equal(HomeSectionRenderer({ section: { ...hero, type: 'future_section' }, theme }), null);
+});

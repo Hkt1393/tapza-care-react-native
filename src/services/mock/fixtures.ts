@@ -6,18 +6,64 @@ export const doctorFixtures: readonly Doctor[] = [
   { id: 'doctor-meera-iyer', name: 'Dr. Meera Iyer', specialty: 'Pediatrician', photoUrl: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400', feeInr: 700, languages: ['English', 'Hindi'] },
 ];
 
-export const slotFixtures: readonly Slot[] = [
-  { id: 'slot-ananya-0900', doctorId: 'doctor-ananya-rao', startsAt: '2026-10-24T09:00:00+05:30', endsAt: '2026-10-24T09:20:00+05:30', available: true },
-  { id: 'slot-ananya-0930', doctorId: 'doctor-ananya-rao', startsAt: '2026-10-24T09:30:00+05:30', endsAt: '2026-10-24T09:50:00+05:30', available: true },
-  { id: 'slot-arjun-1030', doctorId: 'doctor-arjun-reddy', startsAt: '2026-10-24T10:30:00+05:30', endsAt: '2026-10-24T10:50:00+05:30', available: true },
-  { id: 'slot-meera-1100', doctorId: 'doctor-meera-iyer', startsAt: '2026-10-24T11:00:00+05:30', endsAt: '2026-10-24T11:20:00+05:30', available: true },
-  { id: 'slot-ananya-251000', doctorId: 'doctor-ananya-rao', startsAt: '2026-10-25T10:00:00+05:30', endsAt: '2026-10-25T10:20:00+05:30', available: true },
-  { id: 'slot-arjun-250900', doctorId: 'doctor-arjun-reddy', startsAt: '2026-10-25T09:00:00+05:30', endsAt: '2026-10-25T09:20:00+05:30', available: true },
-  { id: 'slot-meera-251300', doctorId: 'doctor-meera-iyer', startsAt: '2026-10-25T13:00:00+05:30', endsAt: '2026-10-25T13:20:00+05:30', available: true },
-  { id: 'slot-ananya-260930', doctorId: 'doctor-ananya-rao', startsAt: '2026-10-26T09:30:00+05:30', endsAt: '2026-10-26T09:50:00+05:30', available: true },
-  { id: 'slot-arjun-261100', doctorId: 'doctor-arjun-reddy', startsAt: '2026-10-26T11:00:00+05:30', endsAt: '2026-10-26T11:20:00+05:30', available: true },
-  { id: 'slot-meera-261000', doctorId: 'doctor-meera-iyer', startsAt: '2026-10-26T10:00:00+05:30', endsAt: '2026-10-26T10:20:00+05:30', available: true },
-];
+const slotTimes: Readonly<Record<string, readonly [string, string]>> = {
+  'doctor-ananya-rao': ['09:00', '09:30'],
+  'doctor-arjun-reddy': ['10:00', '10:30'],
+  'doctor-meera-iyer': ['11:00', '11:30'],
+};
+
+const clinicDateFormatter = new Intl.DateTimeFormat('en-CA', {
+  day: '2-digit',
+  month: '2-digit',
+  timeZone: 'Asia/Kolkata',
+  year: 'numeric',
+});
+
+const dateKey = (date: Date): string => {
+  const parts = clinicDateFormatter.formatToParts(date);
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const day = parts.find((part) => part.type === 'day')?.value;
+  return `${year}-${month}-${day}`;
+};
+
+const addDays = (key: string, count: number): string => {
+  const date = new Date(`${key}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + count);
+  return date.toISOString().slice(0, 10);
+};
+
+/** Creates a deterministic rolling week of clinic slots relative to mock time. */
+export const createSlotFixtures = (referenceTime: string): Slot[] => {
+  const referenceDate = new Date(referenceTime);
+  const fixtures: Slot[] = [];
+
+  for (let dayOffset = 1; dayOffset <= 7; dayOffset += 1) {
+    const dayKey = addDays(dateKey(referenceDate), dayOffset);
+
+    for (const [doctorId, times] of Object.entries(slotTimes)) {
+      for (const time of times) {
+        const startHour = Number(time.slice(0, 2));
+        const startMinute = Number(time.slice(3, 5));
+        const endMinute = startMinute + 20;
+        const endHour = startHour + Math.floor(endMinute / 60);
+        const endMinuteOfHour = String(endMinute % 60).padStart(2, '0');
+        const startsAt = `${dayKey}T${time}:00+05:30`;
+        const endsAt = `${dayKey}T${String(endHour).padStart(2, '0')}:${endMinuteOfHour}:00+05:30`;
+
+        fixtures.push({
+          id: `slot-${doctorId}-${dayKey}-${time.replace(':', '')}`,
+          doctorId,
+          startsAt,
+          endsAt,
+          available: true,
+        });
+      }
+    }
+  }
+
+  return fixtures;
+};
 
 export const prescriptionFixtures: readonly Prescription[] = [
   {

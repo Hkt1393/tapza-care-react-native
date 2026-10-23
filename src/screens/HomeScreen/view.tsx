@@ -1,7 +1,8 @@
 import type React from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppPressable, AppText, SkeletonBlock } from '../../components';
 import { strings } from '../../constants/strings';
 import { colors } from '../../theme/colors';
 import type { AppScreen, LayoutConfig } from '../../types/domain';
@@ -61,18 +62,18 @@ const HomeScreenView = ({
           <View style={[styles.header, { backgroundColor: theme.surface }]}>
             <View style={styles.headerTitleRow}>
               <View style={styles.headerCopy}>
-                <Text style={[styles.appTitle, { color: theme.textPrimary }]}>{strings.home.title}</Text>
-                <Text style={[styles.headerSubtitle, { color: theme.textSecondary }]}>{strings.home.subtitle}</Text>
+                <AppText style={[styles.appTitle, { color: theme.textPrimary }]}>{strings.home.title}</AppText>
+                <AppText style={[styles.headerSubtitle, { color: theme.textSecondary }]}>{strings.home.subtitle}</AppText>
               </View>
               {config.theme.festival ? (
                 <View style={[styles.festivalBadge, { backgroundColor: theme.accent }]}>
-                  <Text style={[styles.festivalBadgeLabel, { color: theme.onAccent }]}>{config.theme.festival.name}</Text>
+                  <AppText style={[styles.festivalBadgeLabel, { color: theme.onAccent }]}>{config.theme.festival.name}</AppText>
                 </View>
               ) : null}
             </View>
 
             <View style={styles.themeSwitch} accessibilityLabel={strings.home.switchHint}>
-              <Pressable
+              <AppPressable
                 accessibilityRole="button"
                 accessibilityLabel={strings.home.everydayTheme}
                 accessibilityState={{ selected: activeVariant === 'normal', disabled: isLoading }}
@@ -83,14 +84,14 @@ const HomeScreenView = ({
                   activeVariant === 'normal' && { backgroundColor: theme.primary },
                 ]}
               >
-                <Text style={[
+                <AppText style={[
                   styles.themeOptionLabel,
                   { color: activeVariant === 'normal' ? theme.onPrimary : theme.textSecondary },
                 ]}>
                   {strings.home.everydayTheme}
-                </Text>
-              </Pressable>
-              <Pressable
+                </AppText>
+              </AppPressable>
+              <AppPressable
                 accessibilityRole="button"
                 accessibilityLabel={strings.home.diwaliTheme}
                 accessibilityState={{ selected: activeVariant === 'diwali', disabled: isLoading }}
@@ -101,13 +102,13 @@ const HomeScreenView = ({
                   activeVariant === 'diwali' && { backgroundColor: theme.primary },
                 ]}
               >
-                <Text style={[
+                <AppText style={[
                   styles.themeOptionLabel,
                   { color: activeVariant === 'diwali' ? theme.onPrimary : theme.textSecondary },
                 ]}>
                   {strings.home.diwaliTheme}
-                </Text>
-              </Pressable>
+                </AppText>
+              </AppPressable>
               {isLoading ? (
                 <ActivityIndicator
                   accessibilityLabel={strings.home.loadingTheme}
@@ -139,7 +140,7 @@ const HomeScreenView = ({
               const selected = tab.screen === 'home';
               const enabled = tab.screen === 'home' || tab.screen === 'prescriptions';
               return (
-                <Pressable
+                <AppPressable
                   key={tab.id}
                   accessibilityRole="tab"
                   accessibilityLabel={tab.label}
@@ -149,9 +150,9 @@ const HomeScreenView = ({
                   onPress={() => onTabPress(tab.screen)}
                   style={styles.tabItem}
                 >
-                  <Text style={[styles.tabGlyph, { color: selected ? theme.primary : mutedText }]}>{getTabGlyph(tab.icon)}</Text>
-                  <Text style={[styles.tabLabel, { color: selected ? theme.primary : mutedText }]}>{tab.label}</Text>
-                </Pressable>
+                  <AppText style={[styles.tabGlyph, { color: selected ? theme.primary : mutedText }]}>{getTabGlyph(tab.icon)}</AppText>
+                  <AppText style={[styles.tabLabel, { color: selected ? theme.primary : mutedText }]}>{tab.label}</AppText>
+                </AppPressable>
               );
             })}
           </View>
@@ -159,22 +160,45 @@ const HomeScreenView = ({
       ) : (
         <View style={styles.stateContainer}>
           {isLoading ? (
-            <>
-              <ActivityIndicator color={primary} size="large" />
-              <Text style={[styles.stateMessage, { color: mutedText }]}>{strings.home.loading}</Text>
-            </>
+            <View
+              style={styles.skeletonPage}
+              accessibilityRole="progressbar"
+              accessibilityLabel={strings.common.loading}
+            >
+              <View style={styles.skeletonHeader}>
+                <SkeletonBlock style={styles.skeletonTitle} />
+                <SkeletonBlock style={styles.skeletonSubtitle} />
+                <View style={styles.skeletonCardRow}>
+                  <SkeletonBlock style={styles.skeletonThemeOption} />
+                  <SkeletonBlock style={styles.skeletonThemeOption} />
+                </View>
+              </View>
+              <SkeletonBlock style={styles.skeletonHero} />
+              <View style={styles.skeletonSections}>
+                <SkeletonBlock style={styles.skeletonSectionTitle} />
+                <View style={styles.skeletonCardRow}>
+                  {[0, 1].map((item) => (
+                    <View key={item} style={styles.skeletonCard}>
+                      <SkeletonBlock style={styles.skeletonImage} />
+                      <SkeletonBlock style={styles.skeletonLine} />
+                      <SkeletonBlock style={styles.skeletonSubtitle} />
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
           ) : hasLoadError ? (
             <View style={styles.errorContent} accessibilityRole="alert">
-              <Text style={[styles.errorTitle, { color: baseText }]}>{strings.home.loadErrorTitle}</Text>
-              <Text style={[styles.stateMessage, { color: mutedText }]}>{strings.home.loadErrorMessage}</Text>
-              <Pressable
+              <AppText style={[styles.errorTitle, { color: baseText }]}>{strings.home.loadErrorTitle}</AppText>
+              <AppText style={[styles.stateMessage, { color: mutedText }]}>{strings.home.loadErrorMessage}</AppText>
+              <AppPressable
                 accessibilityRole="button"
                 accessibilityLabel={strings.home.retry}
                 onPress={onRetry}
                 style={[styles.retryButton, { backgroundColor: primary }]}
               >
-                <Text style={[styles.retryLabel, { color: onPrimary }]}>{strings.home.retry}</Text>
-              </Pressable>
+                <AppText style={[styles.retryLabel, { color: onPrimary }]}>{strings.home.retry}</AppText>
+              </AppPressable>
             </View>
           ) : null}
         </View>

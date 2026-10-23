@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: dimensions.borderRadiusSmall,
     justifyContent: 'center',
-    minHeight: 40,
+    minHeight: 44,
     minWidth: 100,
     paddingHorizontal: spacing.md,
   },
@@ -93,6 +93,55 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
+  },
+  skeletonPage: {
+    alignSelf: 'stretch',
+    flex: 1,
+    gap: spacing.lg,
+    padding: spacing.lg,
+    paddingTop: spacing.xl,
+  },
+  skeletonHeader: {
+    gap: spacing.sm,
+  },
+  skeletonSections: {
+    gap: spacing.md,
+  },
+  skeletonCardRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  skeletonCard: {
+    flex: 1,
+    gap: spacing.sm,
+  },
+  skeletonTitle: {
+    height: 26,
+    width: '58%',
+  },
+  skeletonSubtitle: {
+    height: 16,
+    width: '76%',
+  },
+  skeletonThemeOption: {
+    height: 44,
+    width: 104,
+  },
+  skeletonHero: {
+    height: 148,
+    width: '100%',
+  },
+  skeletonSectionTitle: {
+    height: 22,
+    width: '48%',
+  },
+  skeletonImage: {
+    height: 82,
+    width: '100%',
+  },
+  skeletonLine: {
+    height: 16,
+    width: '88%',
   },
   errorContent: {
     alignItems: 'center',
