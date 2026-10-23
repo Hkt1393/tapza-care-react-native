@@ -2,19 +2,21 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { mockDataAccess } from '../../services/mock/mockDataAccess';
-import type { LayoutConfig } from '../../types/domain';
+import type { AppScreen, LayoutConfig } from '../../types/domain';
 import { resolveRuntimeTheme } from '../../theme/runtimeTheme';
 import type { BookingTarget } from '../../features/booking/types';
 import { getHomeSectionModel, type DoctorItem, type ServiceItem } from '../../features/home/sectionData';
+import type { RootStackScreenProps } from '../../navigation/types';
 import BookingScreen from '../BookingScreen';
 import HomeScreenView from './view';
 
 type ConfigVariant = 'normal' | 'diwali';
+type Props = RootStackScreenProps<'Home'>;
 
 const getConfigVariant = (config: LayoutConfig): ConfigVariant =>
   config.theme.festival?.name === 'Diwali' ? 'diwali' : 'normal';
 
-const HomeScreenContainer = (): React.ReactElement => {
+const HomeScreenContainer = ({ navigation }: Props): React.ReactElement => {
   const [config, setConfig] = useState<LayoutConfig | null>(null);
   const [activeVariant, setActiveVariant] = useState<ConfigVariant>('normal');
   const [isLoading, setIsLoading] = useState(true);
@@ -83,6 +85,9 @@ const HomeScreenContainer = (): React.ReactElement => {
         onVariantChange={handleVariantChange}
         onDoctorPress={handleDoctorPress}
         onServicePress={handleServicePress}
+        onTabPress={(screen: AppScreen) => {
+          if (screen === 'prescriptions') navigation.navigate('Prescriptions');
+        }}
       />
       {bookingTarget !== null && config !== null ? (
         <BookingScreen

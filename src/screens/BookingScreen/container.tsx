@@ -23,29 +23,22 @@ interface BookingScreenProps {
   onClose: () => void;
 }
 
-const toDateKey = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-const getBookingDates = (): BookingDate[] => {
-  const today = new Date();
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + index + 1);
-    const label = date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
-    return {
-      key: toDateKey(date),
-      label,
-      accessibilityLabel: strings.booking.dateAccessibility(date.toLocaleDateString(undefined, { dateStyle: 'full' })),
-    };
-  });
+const toBookingDate = (key: string): BookingDate => {
+  const date = new Date(`${key}T12:00:00+05:30`);
+  return {
+    key,
+    label: date.toLocaleDateString(undefined, {
+      weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata',
+    }),
+    accessibilityLabel: strings.booking.dateAccessibility(date.toLocaleDateString(undefined, {
+      dateStyle: 'full', timeZone: 'Asia/Kolkata',
+    })),
+  };
 };
 
 const BookingScreenContainer = ({ target, theme, onClose }: BookingScreenProps): React.ReactElement => {
-  const [dates] = useState(getBookingDates);
-  const [selectedDate, setSelectedDate] = useState(() => dates[0]?.key ?? toDateKey(new Date()));
+  const [dates, setDates] = useState<BookingDate[]>([]);
+  const [selectedDate, setSelectedDate] = useState('');
   const [slots, setSlots] = useState<Slot[]>([]);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
@@ -69,18 +62,49 @@ const BookingScreenContainer = ({ target, theme, onClose }: BookingScreenProps):
     }
   }, [target.doctorId]);
 
+  const loadAvailableDates = useCallback(async (): Promise<void> => {
+    const sequence = ++loadSequence.current;
+    setLoadState('loading');
+    setBookingState('idle');
+    setSelectedSlotId(null);
+    try {
+      const availableDateKeys = await mockDataAccess.fetchAvailableDates(target.doctorId);
+      if (sequence !== loadSequence.current) return;
+
+      const nextDates = availableDateKeys.map(toBookingDate);
+      setDates(nextDates);
+      const firstDate = nextDates[0]?.key;
+      if (firstDate === undefined) {
+        setSelectedDate('');
+        setSlots([]);
+        setLoadState('empty');
+        return;
+      }
+
+      setSelectedDate(firstDate);
+      await loadSlots(firstDate);
+    } catch {
+      if (sequence !== loadSequence.current) return;
+      setDates([]);
+      setSelectedDate('');
+      setSlots([]);
+      setLoadState('error');
+    }
+  }, [loadSlots, target.doctorId]);
+
   useEffect(() => {
-    void loadSlots(selectedDate);
+    void loadAvailableDates();
     return () => { loadSequence.current += 1; };
-  }, [loadSlots, selectedDate]);
+  }, [loadAvailableDates]);
 
   const handleDateSelect = (date: string): void => {
     if (!requestInFlight.current && date !== selectedDate) {
       setSelectedDate(date);
+      void loadSlots(date);
     }
   };
 
-  const handleRetry = (): void => { void loadSlots(selectedDate); };
+  const handleRetry = (): void => { void loadAvailableDates(); };
 
   const handleConfirm = async (): Promise<void> => {
     if (requestInFlight.current || selectedSlotId === null) return;

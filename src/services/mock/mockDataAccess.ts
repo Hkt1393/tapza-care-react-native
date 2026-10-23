@@ -4,6 +4,8 @@ import type {
   Booking,
   BookingRequest,
   Doctor,
+  DoseTakenState,
+  DoseTakenUpdate,
   LayoutConfig,
   MockNetworkSettings,
   MockOperation,
@@ -12,7 +14,7 @@ import type {
   Slot,
 } from '../../types/domain';
 import { MockRequestError } from '../../types/domain';
-import { doctorFixtures, prescriptionFixtures } from './fixtures';
+import { createSlotFixtures, doctorFixtures, prescriptionFixtures } from './fixtures';
 import { createMockNetwork } from './mockNetwork';
 import { createMockState } from './mockState';
 
@@ -24,9 +26,12 @@ export interface MockDataAccessOptions {
 export interface MockDataAccess {
   fetchConfig(): Promise<LayoutConfig>;
   fetchDoctors(): Promise<Doctor[]>;
+  fetchAvailableDates(doctorId: string): Promise<string[]>;
   fetchSlots(doctorId: string, date: string): Promise<Slot[]>;
   createBooking(request: BookingRequest): Promise<Booking>;
   fetchPrescriptions(): Promise<Prescription[]>;
+  fetchDoseTakenState(prescriptionId: string): Promise<DoseTakenState>;
+  setDoseTakenState(update: DoseTakenUpdate): Promise<DoseTakenState>;
   configureNetwork(settings: Partial<MockNetworkSettings>): void;
   getNetworkSettings(): MockNetworkSettings;
   selectConfig(config: keyof typeof configFixtures): void;
@@ -59,7 +64,8 @@ export const createMockDataAccess = (options: MockDataAccessOptions = {}): MockD
   const cacheStorage = options.storage ?? defaultStorage;
   const now = options.now ?? (() => new Date().toISOString());
   const network = createMockNetwork();
-  const state = createMockState();
+  const createSlots = (): readonly Slot[] => createSlotFixtures(now());
+  const state = createMockState(createSlots);
   let selectedConfig: keyof typeof configFixtures = 'normal';
   let configPayloadOverride: unknown;
 
@@ -83,11 +89,22 @@ export const createMockDataAccess = (options: MockDataAccessOptions = {}): MockD
     return network.isEmpty('doctors') ? [] : doctorFixtures.map(copyDoctor);
   };
 
+  const fetchAvailableDates = async (doctorId: string): Promise<string[]> => {
+    await request('slots');
+    state.refreshSlots(createSlots());
+    if (network.isEmpty('slots')) return [];
+
+    return [...new Set(state.getSlots()
+      .filter((slot) => slot.doctorId === doctorId && slot.available)
+      .map((slot) => slot.startsAt.slice(0, 10)))].sort();
+  };
+
   const fetchSlots = async (doctorId: string, date: string): Promise<Slot[]> => {
     await request('slots');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) {
       throw new RangeError('date must use the YYYY-MM-DD format.');
     }
+    state.refreshSlots(createSlots());
     const matchingSlots = state.getSlots().filter((slot) =>
       slot.doctorId === doctorId && slot.startsAt.slice(0, 10) === date,
     );
@@ -96,12 +113,23 @@ export const createMockDataAccess = (options: MockDataAccessOptions = {}): MockD
 
   const createBooking = async (bookingRequest: BookingRequest): Promise<Booking> => {
     await request('bookings');
+    state.refreshSlots(createSlots());
     return state.reserve(bookingRequest.doctorId, bookingRequest.slotId, now());
   };
 
   const fetchPrescriptions = async (): Promise<Prescription[]> => {
     await request('prescriptions');
     return network.isEmpty('prescriptions') ? [] : prescriptionFixtures.map(copyPrescription);
+  };
+
+  const fetchDoseTakenState = async (prescriptionId: string): Promise<DoseTakenState> => {
+    await request('prescriptions');
+    return state.getDoseTakenState(prescriptionId);
+  };
+
+  const setDoseTakenState = async (update: DoseTakenUpdate): Promise<DoseTakenState> => {
+    await request('prescriptions');
+    return state.setDoseTakenState(update);
   };
 
   const reset = (): void => {
@@ -114,9 +142,12 @@ export const createMockDataAccess = (options: MockDataAccessOptions = {}): MockD
   return {
     fetchConfig,
     fetchDoctors,
+    fetchAvailableDates,
     fetchSlots,
     createBooking,
     fetchPrescriptions,
+    fetchDoseTakenState,
+    setDoseTakenState,
     configureNetwork: network.configure,
     getNetworkSettings: network.getSettings,
     selectConfig: (config) => { selectedConfig = config; },

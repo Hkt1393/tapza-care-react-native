@@ -1,7 +1,8 @@
 import type React from 'react';
-import { Image, ImageBackground, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, ImageBackground, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { AppPressable, AppText } from '../../../components';
 import type { LayoutSection } from '../../../types/domain';
 import type { RuntimeThemeTokens } from '../../../theme/runtimeTheme';
 import { resolveSectionBackground } from '../../../theme/runtimeTheme';
@@ -75,7 +76,7 @@ const SectionHeading = ({
   title?: string;
   color: string;
 }): React.ReactElement | null => title
-  ? <Text style={[styles.sectionTitle, { color }]}>{title}</Text>
+  ? <AppText style={[styles.sectionTitle, { color }]}>{title}</AppText>
   : null;
 
 const getPriceLabel = (priceInr: number): string => `₹${priceInr.toLocaleString('en-IN')}`;
@@ -102,14 +103,14 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
       <View style={styles.sectionContent}>
         {model.type === 'hero_banner' ? (
           <View style={styles.heroContent}>
-            <Text style={[styles.heroEyebrow, { color: foreground }]}>
+            <AppText style={[styles.heroEyebrow, { color: foreground }]}>
               {model.items[0]?.greeting ?? section.title ?? strings.home.title}
-            </Text>
-            <Text style={[styles.heroTitle, { color: foreground }]}>
+            </AppText>
+            <AppText style={[styles.heroTitle, { color: foreground }]}>
               {section.title ?? model.items[0]?.greeting ?? strings.home.title}
-            </Text>
+            </AppText>
             {model.items[0]?.subtitle ? (
-              <Text style={[styles.heroSubtitle, { color: foreground }]}>{model.items[0].subtitle}</Text>
+              <AppText style={[styles.heroSubtitle, { color: foreground }]}>{model.items[0].subtitle}</AppText>
             ) : null}
           </View>
         ) : null}
@@ -120,7 +121,7 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
               {model.items.map((item) => (
                 <View key={item.id} style={[styles.categoryChip, { backgroundColor: theme.surface }]}>
-                  <Text style={[styles.categoryLabel, { color: theme.textPrimary }]}>{item.label}</Text>
+                  <AppText style={[styles.categoryLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
                 </View>
               ))}
             </ScrollView>
@@ -134,9 +135,9 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
               {model.items.map((item) => (
                 <View key={item.id} style={[styles.actionTile, { backgroundColor: theme.surface }]}>
                   <View style={[styles.actionIcon, { backgroundColor: theme.accent }]}>
-                    <Text style={[styles.actionInitial, { color: theme.onAccent }]}>{getActionGlyph(item.id)}</Text>
+                    <AppText style={[styles.actionInitial, { color: theme.onAccent }]}>{getActionGlyph(item.id)}</AppText>
                   </View>
-                  <Text style={[styles.actionLabel, { color: theme.textPrimary }]}>{item.label}</Text>
+                  <AppText style={[styles.actionLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
                 </View>
               ))}
             </View>
@@ -148,7 +149,7 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
             <SectionHeading title={section.title} color={foreground} />
             <View style={styles.serviceGrid}>
               {model.items.map((item) => (
-                <Pressable
+                <AppPressable
                   key={item.id}
                   accessibilityRole={item.doctorId && onServicePress ? 'button' : undefined}
                   accessibilityLabel={item.doctorId ? strings.booking.serviceAccessibility(item.name) : item.name}
@@ -163,10 +164,10 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
                     accessibilityRole="image"
                     accessibilityLabel={item.name}
                   />
-                  {item.badge ? <Text style={[styles.serviceBadge, { color: theme.onAccent, backgroundColor: theme.accent }]}>{item.badge}</Text> : null}
-                  <Text style={[styles.serviceName, { color: theme.textPrimary }]}>{item.name}</Text>
-                  <Text style={[styles.servicePrice, { color: theme.primary }]}>{getPriceLabel(item.priceInr)}</Text>
-                </Pressable>
+                  {item.badge ? <AppText style={[styles.serviceBadge, { color: theme.onAccent, backgroundColor: theme.accent }]}>{item.badge}</AppText> : null}
+                  <AppText style={[styles.serviceName, { color: theme.textPrimary }]}>{item.name}</AppText>
+                  <AppText style={[styles.servicePrice, { color: theme.primary }]}>{getPriceLabel(item.priceInr)}</AppText>
+                </AppPressable>
               ))}
             </View>
           </>
@@ -177,7 +178,7 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
             <SectionHeading title={section.title} color={foreground} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.doctorRow}>
               {model.items.map((doctor) => (
-                <Pressable
+                <AppPressable
                   key={doctor.id}
                   accessibilityRole={onDoctorPress ? 'button' : undefined}
                   accessibilityLabel={strings.booking.doctorAccessibility(doctor.name)}
@@ -187,11 +188,11 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
                   style={[styles.doctorCard, { backgroundColor: theme.surface }]}
                 >
                   <Image source={{ uri: doctor.photoUrl }} style={styles.doctorImage} accessibilityRole="image" accessibilityLabel={doctor.name} />
-                  <Text style={[styles.doctorName, { color: theme.textPrimary }]}>{doctor.name}</Text>
-                  <Text style={[styles.doctorSpecialty, { color: theme.textSecondary }]}>{doctor.specialty}</Text>
-                  <Text style={[styles.doctorAvailability, { color: theme.primary }]}>{doctor.nextAvailableAt}</Text>
-                  <Text style={[styles.doctorFee, { color: theme.textPrimary }]}>{getPriceLabel(doctor.feeInr)}</Text>
-                </Pressable>
+                  <AppText style={[styles.doctorName, { color: theme.textPrimary }]}>{doctor.name}</AppText>
+                  <AppText style={[styles.doctorSpecialty, { color: theme.textSecondary }]}>{doctor.specialty}</AppText>
+                  <AppText style={[styles.doctorAvailability, { color: theme.primary }]}>{doctor.nextAvailableAt}</AppText>
+                  <AppText style={[styles.doctorFee, { color: theme.textPrimary }]}>{getPriceLabel(doctor.feeInr)}</AppText>
+                </AppPressable>
               ))}
             </ScrollView>
           </>
@@ -200,7 +201,7 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
         {model.type === 'offer_strip' ? (
           <View style={styles.offerContent}>
             {model.items.map((item) => (
-              <Text key={item.message} style={[styles.offerText, { color: foreground }]}>{item.message}</Text>
+              <AppText key={item.message} style={[styles.offerText, { color: foreground }]}>{item.message}</AppText>
             ))}
           </View>
         ) : null}
