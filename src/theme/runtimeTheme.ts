@@ -11,6 +11,14 @@ export interface RuntimeThemeTokens {
   accent: string;
   onPrimary: string;
   onAccent: string;
+  surfaceTint: string;
+  border: string;
+  textTertiary: string;
+  success: string;
+  successText: string;
+  warning: string;
+  error: string;
+  overlay: string;
 }
 
 export interface ResolvedSectionBackground {
@@ -42,6 +50,9 @@ const relativeLuminance = (hex: string): number => {
 export const contrastingTextColor = (background: string): string =>
   relativeLuminance(background) > 0.179 ? colors.black : colors.white;
 
+export const resolveStatusBarStyle = (background: string): 'dark' | 'light' =>
+  contrastingTextColor(background) === colors.black ? 'dark' : 'light';
+
 export const resolveRuntimeTheme = (config: LayoutConfig): RuntimeThemeTokens => ({
   primary: config.theme.primary,
   secondary: config.theme.secondary,
@@ -52,6 +63,14 @@ export const resolveRuntimeTheme = (config: LayoutConfig): RuntimeThemeTokens =>
   accent: config.theme.accent,
   onPrimary: contrastingTextColor(config.theme.primary),
   onAccent: contrastingTextColor(config.theme.accent),
+  surfaceTint: colors.surfaceTint,
+  border: colors.border,
+  textTertiary: colors.textTertiary,
+  success: colors.success,
+  successText: colors.successText,
+  warning: colors.warning,
+  error: colors.error,
+  overlay: colors.overlay,
 });
 
 export const resolveSectionBackground = (

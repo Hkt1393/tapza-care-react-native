@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, dimensions, spacing, typography } from '../../theme';
+import { colors, dimensions, shadows, spacing, typography } from '../../theme';
 
 const styles = StyleSheet.create({
   scrim: {
@@ -12,13 +12,13 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
   },
   sheet: {
-    borderTopLeftRadius: dimensions.borderRadius * 1.5,
-    borderTopRightRadius: dimensions.borderRadius * 1.5,
+    borderTopLeftRadius: dimensions.borderRadiusSheet,
+    borderTopRightRadius: dimensions.borderRadiusSheet,
     maxHeight: '92%',
     minHeight: '58%',
-    overflow: 'hidden',
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.lg,
+    ...shadows.sheet,
   },
   dragRegion: {
     alignItems: 'center',
@@ -61,15 +61,15 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxs,
   },
   fee: {
-    fontSize: typography.bodySmall,
+    fontSize: typography.title,
     fontWeight: '700',
     marginTop: spacing.xs,
   },
   closeButton: {
     alignItems: 'center',
-    height: 44,
+    height: dimensions.minimumTouchTarget,
     justifyContent: 'center',
-    width: 44,
+    width: dimensions.minimumTouchTarget,
   },
   closeLabel: {
     fontSize: typography.h2,
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     borderRadius: dimensions.borderRadiusSmall,
     borderWidth: 1,
     justifyContent: 'center',
-    minHeight: 44,
+    minHeight: dimensions.minimumTouchTarget,
     minWidth: 76,
     paddingHorizontal: spacing.sm,
   },
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     marginTop: spacing.md,
-    minHeight: 44,
+    minHeight: dimensions.minimumTouchTarget,
     minWidth: 120,
     paddingHorizontal: spacing.md,
   },

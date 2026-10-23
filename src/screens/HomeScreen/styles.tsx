@@ -7,21 +7,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
   },
   headerTitleRow: {
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  brandMark: {
+    alignItems: 'center',
+    borderRadius: dimensions.borderRadiusXs,
+    height: 34,
+    justifyContent: 'center',
+    width: 34,
+  },
+  brandMarkText: {
+    fontSize: typography.h3,
+    fontWeight: '700',
+    lineHeight: 28,
   },
   headerCopy: {
     flex: 1,
+    minWidth: 0,
   },
   appTitle: {
-    fontSize: typography.h3,
+    fontSize: typography.titleSmall,
     fontWeight: '700',
   },
   headerSubtitle: {
@@ -29,10 +41,12 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxs,
   },
   festivalBadge: {
-    borderRadius: dimensions.borderRadiusSmall,
-    marginLeft: spacing.sm,
+    alignSelf: 'flex-start',
+    borderRadius: dimensions.borderRadiusPill,
+    marginTop: spacing.xs,
+    marginLeft: spacing.xl + 2,
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.xxs,
   },
   festivalBadgeLabel: {
     fontSize: typography.caption,
@@ -40,8 +54,7 @@ const styles = StyleSheet.create({
   },
   themeSwitch: {
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    borderRadius: dimensions.borderRadius,
+    borderRadius: dimensions.borderRadiusPill,
     flexDirection: 'row',
     gap: spacing.xxs,
     minHeight: 48,
@@ -49,14 +62,14 @@ const styles = StyleSheet.create({
   },
   themeOption: {
     alignItems: 'center',
-    borderRadius: dimensions.borderRadiusSmall,
+    borderRadius: dimensions.borderRadiusPill,
     justifyContent: 'center',
-    minHeight: 44,
-    minWidth: 100,
-    paddingHorizontal: spacing.md,
+    minHeight: dimensions.minimumTouchTarget,
+    minWidth: 68,
+    paddingHorizontal: spacing.xs,
   },
   themeOptionLabel: {
-    fontSize: typography.bodySmall,
+    fontSize: typography.caption,
     fontWeight: '700',
   },
   switchLoading: {
@@ -64,29 +77,17 @@ const styles = StyleSheet.create({
   },
   sections: {
     flexGrow: 1,
-    paddingBottom: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
   },
-  tabBar: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
-    minHeight: 56,
-    paddingHorizontal: spacing.xs,
+  greetingRow: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
   },
-  tabItem: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    minHeight: 56,
-    paddingVertical: spacing.xs,
-  },
-  tabGlyph: {
-    fontSize: typography.title,
-    lineHeight: 22,
-  },
-  tabLabel: {
-    fontSize: typography.caption,
-    marginTop: spacing.xxs,
-    textAlign: 'center',
+  greetingText: {
+    fontSize: typography.h3,
+    fontWeight: '700',
   },
   stateContainer: {
     alignItems: 'center',

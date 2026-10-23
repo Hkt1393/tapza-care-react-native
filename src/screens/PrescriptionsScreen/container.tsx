@@ -6,11 +6,14 @@ import { strings } from '../../constants/strings';
 import { mockDataAccess } from '../../services/mock/mockDataAccess';
 import type { Prescription } from '../../types/domain';
 import type { PrescriptionListItem } from '../../features/prescriptions/types';
-import type { RootStackScreenProps } from '../../navigation/types';
+import { resolveRuntimeTheme } from '../../theme/runtimeTheme';
+import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
+import { useRuntimeThemeContext } from '../../theme/RuntimeThemeContext';
+import type { PrescriptionsScreenProps } from '../../navigation/types';
 import PrescriptionsScreenView from './view';
 
 type LoadState = 'loading' | 'ready' | 'empty' | 'error';
-type Props = RootStackScreenProps<'Prescriptions'>;
+type Props = PrescriptionsScreenProps;
 
 const formatIssuedAt = (value: string): string => new Date(value).toLocaleDateString(undefined, {
   year: 'numeric', month: 'short', day: 'numeric',
@@ -34,12 +37,19 @@ const buildListItem = async (prescription: Prescription): Promise<PrescriptionLi
 };
 
 const PrescriptionsScreenContainer = ({ navigation }: Props): React.ReactElement => {
+  const { setActiveTheme, setActiveTabs } = useRuntimeThemeContext();
   const [items, setItems] = useState<PrescriptionListItem[]>([]);
+  const [theme, setTheme] = useState<RuntimeThemeTokens | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
 
   const load = useCallback(async (): Promise<void> => {
     setLoadState('loading');
     try {
+      const config = await mockDataAccess.fetchConfig();
+      const nextTheme = resolveRuntimeTheme(config);
+      setTheme(nextTheme);
+      setActiveTheme(nextTheme);
+      setActiveTabs(config.tabs);
       const prescriptions = await mockDataAccess.fetchPrescriptions();
       const nextItems = await Promise.all(prescriptions.map(buildListItem));
       setItems(nextItems);
@@ -56,10 +66,11 @@ const PrescriptionsScreenContainer = ({ navigation }: Props): React.ReactElement
   return (
     <PrescriptionsScreenView
       items={items}
+      theme={theme}
       loadState={loadState}
       onOpen={(prescriptionId) => navigation.navigate('PrescriptionDetail', { prescriptionId })}
       onRetry={() => { void load(); }}
-      onBack={() => navigation.goBack()}
+      onBack={() => navigation.navigate('Home', { screen: 'HomeLanding' })}
     />
   );
 };

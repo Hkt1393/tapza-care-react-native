@@ -1,6 +1,13 @@
 export const strings = {
+  navigation: {
+    Home: 'Home',
+    Book: 'Book',
+    Prescriptions: 'Prescriptions',
+    Doses: 'Doses',
+  },
   home: {
     title: 'Tapza Care',
+    tabLabel: 'Home',
     subtitle: 'Thoughtful care for every day',
     everydayTheme: 'Everyday',
     diwaliTheme: 'Diwali',
@@ -9,10 +16,30 @@ export const strings = {
     loadErrorTitle: 'We could not load your home screen',
     loadErrorMessage: 'Please check your connection and try again.',
     switchHint: 'Choose the home screen theme',
+    categoryComingSoon: {
+      title: (category: string): string => `${category} coming soon`,
+      message: 'This care category is under development.',
+      action: 'Got it',
+      hint: 'See information about this care category',
+    },
     loadingTheme: 'Loading selected theme',
     comingSoonHint: 'This screen is not part of the home screen slice yet.',
+    openPrescriptionsHint: 'Open your prescriptions',
+    familyComingSoon: {
+      title: 'Family care is coming soon',
+      message: 'This feature is under development. Family care tools will be available in a future update.',
+      action: 'Got it',
+      hint: 'Learn about upcoming family care features',
+      badge: 'Coming soon',
+    },
   },
   booking: {
+    pickDoctorTitle: 'Choose a doctor',
+    pickDoctorSubtitle: 'Select a doctor to see available appointment times.',
+    noDoctorsTitle: 'No doctors available',
+    noDoctorsMessage: 'Doctors will appear here when available.',
+    doctorsLoadError: 'Doctors could not be loaded. Please try again.',
+    openBookingHint: 'Choose this doctor and continue to appointment booking',
     actions: {
       bookDoctor: 'Book this doctor',
       bookService: 'Book this service',
@@ -46,6 +73,7 @@ export const strings = {
     serviceAccessibility: (name: string): string => `Book ${name}`,
   },
   prescriptions: {
+    tabLabel: 'Prescriptions',
     title: 'Prescriptions',
     detailTitle: 'Prescription details',
     subtitle: 'Your care plan and medicine schedule',
@@ -81,6 +109,20 @@ export const strings = {
     home: 'Home',
     listAccessibility: (doctor: string, date: string): string => `Prescription from ${doctor}, issued ${date}`,
     doseAccessibility: (medicine: string, time: string, taken: boolean): string =>
+      `${medicine}, ${time}, ${taken ? 'taken' : 'not taken'}`,
+  },
+  doses: {
+    title: 'Dose reminders',
+    openHint: 'Open your dose reminders',
+    subtitle: 'Your scheduled medicine doses',
+    emptyTitle: 'No scheduled doses',
+    emptyMessage: 'Medicine schedules from your prescriptions will appear here.',
+    loadError: 'Dose reminders could not be loaded. Please try again.',
+    retry: 'Try again',
+    updated: 'Dose status updated',
+    updateError: 'We could not update this dose. Your previous status is unchanged.',
+    doctor: (name: string): string => `Prescribed by ${name}`,
+    accessibility: (medicine: string, time: string, taken: boolean): string =>
       `${medicine}, ${time}, ${taken ? 'taken' : 'not taken'}`,
   },
   common: {

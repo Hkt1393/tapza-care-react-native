@@ -5,27 +5,33 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppPressable, AppText, SkeletonBlock } from '../../components';
 import { strings } from '../../constants/strings';
 import type { PrescriptionListItem } from '../../features/prescriptions/types';
+import { colors } from '../../theme/colors';
+import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
 import styles from './styles';
 
 type LoadState = 'loading' | 'ready' | 'empty' | 'error';
 
 interface PrescriptionsScreenViewProps {
   items: PrescriptionListItem[];
+  theme: RuntimeThemeTokens | null;
   loadState: LoadState;
   onOpen: (prescriptionId: string) => void;
   onRetry: () => void;
   onBack: () => void;
 }
 
-const PrescriptionsScreenView = ({ items, loadState, onOpen, onRetry, onBack }: PrescriptionsScreenViewProps): React.ReactElement => (
-  <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+const PrescriptionsScreenView = ({
+  items,
+  theme,
+  loadState,
+  onOpen,
+  onRetry,
+  onBack,
+}: PrescriptionsScreenViewProps): React.ReactElement => (
+  <SafeAreaView style={[styles.safeArea, { backgroundColor: theme?.background ?? colors.background }]} edges={['top']}>
     <View style={styles.header}>
-      <AppPressable accessibilityRole="button" accessibilityLabel={strings.prescriptions.home} onPress={onBack} style={styles.backButton}>
-        <AppText style={styles.backGlyph}>‹</AppText>
-        <AppText style={styles.backLabel}>{strings.prescriptions.home}</AppText>
-      </AppPressable>
-      <AppText style={styles.title}>{strings.prescriptions.title}</AppText>
-      <AppText style={styles.subtitle}>{strings.prescriptions.subtitle}</AppText>
+      <AppText style={[styles.title, theme !== null && { color: theme.textPrimary }]}>{strings.prescriptions.title}</AppText>
+      <AppText style={[styles.subtitle, theme !== null && { color: theme.textSecondary }]}>{strings.prescriptions.subtitle}</AppText>
     </View>
 
     {loadState === 'loading' ? (
@@ -44,16 +50,16 @@ const PrescriptionsScreenView = ({ items, loadState, onOpen, onRetry, onBack }: 
       </View>
     ) : loadState === 'error' ? (
       <View style={styles.stateContainer} accessibilityRole="alert">
-        <AppText style={styles.stateTitle}>{strings.prescriptions.loadErrorTitle}</AppText>
-        <AppText style={styles.stateMessage}>{strings.prescriptions.loadErrorMessage}</AppText>
-        <AppPressable accessibilityRole="button" accessibilityLabel={strings.prescriptions.retry} onPress={onRetry} style={styles.primaryButton}>
-          <AppText style={styles.primaryButtonLabel}>{strings.prescriptions.retry}</AppText>
+        <AppText style={[styles.stateTitle, theme !== null && { color: theme.textPrimary }]}>{strings.prescriptions.loadErrorTitle}</AppText>
+        <AppText style={[styles.stateMessage, theme !== null && { color: theme.textSecondary }]}>{strings.prescriptions.loadErrorMessage}</AppText>
+        <AppPressable accessibilityRole="button" accessibilityLabel={strings.prescriptions.retry} onPress={onRetry} style={[styles.primaryButton, theme !== null && { backgroundColor: theme.primary }]}>
+          <AppText style={[styles.primaryButtonLabel, theme !== null && { color: theme.onPrimary }]}>{strings.prescriptions.retry}</AppText>
         </AppPressable>
       </View>
     ) : loadState === 'empty' ? (
       <View style={styles.stateContainer} accessibilityRole="alert">
-        <AppText style={styles.stateTitle}>{strings.prescriptions.emptyTitle}</AppText>
-        <AppText style={styles.stateMessage}>{strings.prescriptions.emptyMessage}</AppText>
+        <AppText style={[styles.stateTitle, theme !== null && { color: theme.textPrimary }]}>{strings.prescriptions.emptyTitle}</AppText>
+        <AppText style={[styles.stateMessage, theme !== null && { color: theme.textSecondary }]}>{strings.prescriptions.emptyMessage}</AppText>
       </View>
     ) : (
       <FlatList
@@ -67,14 +73,14 @@ const PrescriptionsScreenView = ({ items, loadState, onOpen, onRetry, onBack }: 
             accessibilityLabel={item.accessibilityLabel}
             accessibilityHint={strings.prescriptions.medicinesHeading}
             onPress={() => onOpen(item.id)}
-            style={styles.card}
+            style={[styles.card, theme !== null && { backgroundColor: theme.surface, borderColor: theme.border }]}
           >
-            <AppText style={styles.doctor}>{strings.prescriptions.issuedBy(item.doctorName)}</AppText>
-            <AppText style={styles.date}>{strings.prescriptions.issuedOn(item.issuedAtLabel)}</AppText>
-            <AppText style={styles.clinic}>{item.clinicName}</AppText>
+            <AppText style={[styles.doctor, theme !== null && { color: theme.textPrimary }]}>{strings.prescriptions.issuedBy(item.doctorName)}</AppText>
+            <AppText style={[styles.date, theme !== null && { color: theme.textSecondary }]}>{strings.prescriptions.issuedOn(item.issuedAtLabel)}</AppText>
+            <AppText style={[styles.clinic, theme !== null && { color: theme.textSecondary }]}>{item.clinicName}</AppText>
             <View style={styles.cardFooter}>
-              <AppText style={styles.medicineCount}>{item.medicineCountLabel}</AppText>
-              <AppText style={styles.progress}>{item.doseProgressLabel}</AppText>
+              <AppText style={[styles.medicineCount, theme !== null && { color: theme.textPrimary }]}>{item.medicineCountLabel}</AppText>
+              <AppText style={[styles.progress, theme !== null && { color: theme.primary }]}>{item.doseProgressLabel}</AppText>
             </View>
           </AppPressable>
         )}

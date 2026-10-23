@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, dimensions, spacing, typography } from '../../theme';
+import { colors, dimensions, shadows, spacing, typography } from '../../theme';
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     flexDirection: 'row',
-    minHeight: 44,
+    minHeight: dimensions.minimumTouchTarget,
     paddingRight: spacing.sm,
   },
   backGlyph: {
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     borderRadius: dimensions.borderRadius,
     borderWidth: 1,
     gap: spacing.sm,
-    padding: spacing.md,
+    padding: dimensions.cardPadding,
   },
   skeletonDoctor: {
     height: 22,
@@ -86,7 +86,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: dimensions.borderRadius,
     borderWidth: 1,
-    padding: spacing.md,
+    padding: dimensions.cardPadding,
+    ...shadows.sm,
   },
   doctor: {
     color: colors.text,

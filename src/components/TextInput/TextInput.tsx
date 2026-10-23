@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { Text, TextInput as RNTextInput, View } from 'react-native';
 
+import { colors } from '../../theme/colors';
 import styles from './styles';
 
 export interface TextInputProps extends ComponentProps<typeof RNTextInput> {
@@ -23,7 +24,7 @@ const TextInput = ({
       <RNTextInput
         {...props}
         style={[styles.input, inputStyle]}
-        placeholderTextColor="#64748B"
+        placeholderTextColor={colors.textTertiary}
       />
     </View>
   );

@@ -1,171 +1,112 @@
-# React Native Base Project
+# Tapza Care
 
-A clean, reusable Expo + React Native starter designed for future application projects. The structure follows a minimal MVVM pattern and keeps screens, services, and shared UI separated for clarity and scalability.
+Tapza Care is an Expo and React Native patient-care assignment app for iOS and Android. It demonstrates a configuration-driven care home, doctor and service booking, prescriptions, and dose tracking using deterministic mock data.
 
-## Purpose
+## Implemented features
 
-This project acts as a production-ready template for building future React Native apps quickly while preserving a predictable architecture, responsive layout patterns, and central theme utilities.
+- Home sections and theme are loaded from validated normal-day or Diwali configuration fixtures. The Home screen can switch between them at runtime.
+- Home supports hero, category, quick-action, service, doctor, and offer sections, including color, gradient, and image backgrounds. Unknown section types are skipped safely.
+- Booking can start from a doctor or supported service. Users choose an available date and slot in a slide-up sheet. The mock service is the source of truth and returns a typed conflict for an already-booked slot; the screen prevents duplicate submissions and reconciles availability after a response.
+- Prescription list and detail screens show medicine dose, duration, and schedule. Dose status is updated through the mock service and can be undone during the app session.
+- Screens provide loading, empty, error, retry, and success or updated states where applicable.
 
-## Tech Stack
+## Prerequisites
 
-- Expo SDK 57
-- React Native 0.86
-- React 19.2.3
-- TypeScript
-- Functional components and React Hooks
-- Safe area handling via react-native-safe-area-context
+- Node.js and npm (the repository does not pin a Node.js version).
+- iOS Simulator on macOS for the iOS simulator command, or Android Studio with an emulator/device for Android.
+- A physical device can run the project through the Expo development server and a compatible Expo client.
 
-## Folder Structure
+The project currently declares Expo SDK `~57.0.26`, React Native `0.86.3`, React `19.2.3`, and TypeScript `~6.0.3`. The lockfile is `package-lock.json`.
 
-src/
-├── components/
-│   ├── Button/
-│   ├── TextInput/
-│   ├── Loader/
-│   ├── EmptyState/
-│   ├── ErrorView/
-│   └── ScreenContainer/
-├── screens/
-│   └── ExampleScreen/
-├── navigation/
-├── services/
-│   ├── api/
-│   └── storage/
-├── hooks/
-├── utils/
-├── constants/
-├── theme/
-├── types/
-├── config/
-└── ...
+## Setup and run
 
-## MVVM Architecture
+```sh
+npm ci
+npm start
+```
 
-The screen flow follows a view-to-container-to-service pattern:
+Then use the Expo CLI output to open the app in a connected development environment. Platform scripts are also available:
 
-View
-↓
-Container / ViewModel
-↓
-Service / API
-↓
-Data
+```sh
+npm run ios       # iOS Simulator; macOS required
+npm run android   # Android emulator/device
+npm run web       # Expo web target
+```
 
-### Container responsibilities
+## Checks
 
-- State management
-- API calls
-- Loading, empty, error, and success state handling
-- User interaction handling
-- Derived values and data transformation
-- Passing props to the View
-
-### View responsibilities
-
-- Rendering UI
-- Receiving data and callbacks through props
-- Presenting loading, empty, and error states
-- Keeping business logic out of JSX
-
-## Screen Architecture
-
-Every screen follows the same structure:
-
-screens/
-└── ProfileScreen/
-    ├── index.ts
-    ├── container.tsx
-    ├── view.tsx
-    └── styles.ts
-
-The screen entry point is always exported through the screen directory, not through individual internal files.
-
-## API Flow
-
-The ExampleScreen demonstrates the expected flow:
-
-1. User action triggers a callback from the View.
-2. The Container handles the action.
-3. The Container calls the service layer.
-4. The service layer handles the request and common error handling.
-5. The loaded data returns to the Container.
-6. The Container updates state.
-7. The View re-renders the UI with the new data.
-
-## Safe Area Strategy
-
-The app uses SafeAreaProvider at the application root and a shared ScreenContainer component to centrally handle safe-area padding. This avoids repeating inset logic across screens and keeps the app consistent.
-
-## Responsive Design
-
-Responsive utilities are centralized in src/utils/responsive.ts and include:
-
-- scale
-- verticalScale
-- moderateScale
-- responsiveWidth
-- responsiveHeight
-
-These utilities avoid hardcoded device dimensions and help maintain consistency across phones, tablets, and different screen aspect ratios.
-
-## Theme Approach
-
-Theme values live in src/theme and are centralized in a single place:
-
-- colors
-- spacing
-- typography
-- dimensions
-- shadows
-
-This keeps styling reusable and easy to extend later for dark mode or design tokens.
-
-## Environment Configuration
-
-Environment values are centralized in src/config/env.ts and exposed through the config layer.
-
-1. Copy .env.example to .env
-2. Update the values for your local setup
-3. Never commit secrets or production credentials
-
-## How to create a new screen
-
-1. Create a folder under src/screens with the screen name.
-2. Add the exact structure:
-   - index.ts
-   - container.tsx
-   - view.tsx
-   - styles.ts
-3. Export the screen from the folder entry file.
-4. Keep all API logic inside the container.
-5. Keep render logic in the view.
-
-## How to create a reusable component
-
-1. Create a folder under src/components with the component name.
-2. Include a .tsx file, optional style file, and index.ts.
-3. Keep the component presentational, typed, and reusable.
-4. Do not add business logic or API calls to reusable UI components.
-
-## Running the app
-
-### Android
-
-npm install
-npm run android
-
-### iOS
-
-npm install
-npm run ios
-
-## Type checking
-
+```sh
 npm run typecheck
+npm test
+```
 
-## Important Notes
+`npm test` compiles the test TypeScript configuration and runs the Node test files in `tests/`. There is no `lint` script currently defined in `package.json`.
 
-- Keep screen architecture consistent across the project.
-- Favor reusable UI and centralized theme values.
-- Avoid unnecessary dependencies.
-- Keep business logic in the screen container and service layer, not in the view.
+## Project structure
+
+```text
+src/
+  components/       Shared UI, feedback, and navigation components
+  constants/        Centralized user-facing strings
+  features/
+    booking/        Booking-specific types and feature logic
+    config/         Layout validation, fixtures, and validated config cache
+    home/           Config section parsing and section renderers
+    prescriptions/  Prescription presentation models
+  navigation/       Typed root tabs and nested stacks
+  screens/           MVVM containers, views, and styles for app screens
+  services/mock/     Mock endpoint behavior, fixtures, network controls, and state
+  services/storage/  AsyncStorage adapter
+  theme/             Runtime and semantic theme tokens, dimensions, and styles
+  types/             Shared domain and mock-service contracts
+  utils/             Small cross-feature utilities
+tests/               Config, Home renderer, booking, and dose-tracking tests
+```
+
+Each screen separates container/view logic and presentation using the project’s MVVM convention. Containers coordinate state and services; views render typed props and callbacks. Mock fixtures and mutable mock state are kept behind `mockDataAccess`.
+
+## Architecture notes
+
+- **Config-driven Home:** `GET /config` is represented by the mock data-access service. `validateLayoutConfig` validates incoming data before rendering or caching it. Home section order and content come from the active config.
+- **Runtime themes:** The Home switch selects the normal or Diwali fixture through `mockDataAccess.selectConfig`. The resolved theme is shared through `RuntimeThemeContext`; Home and the other screens use runtime theme tokens.
+- **Navigation:** One React Navigation container owns four real bottom tabs: Home, Book, Prescriptions, and Doses. Prescriptions has a nested stack for prescription detail. Family/Profile screens are not implemented.
+- **Booking:** A single mock state owns slot availability. Booking is optimistic in the UI, then reconciled against the service response; a second reservation of the same slot produces a typed 409-style conflict.
+- **Dose tracking:** Dose updates go through the mock data-access boundary. Prescription and Doses screens read the same session state, including undo behavior.
+- **Persistence:** The last validated layout config is stored using the existing AsyncStorage adapter. If a later config request fails, a cached config is validated before fallback use.
+
+## Switching configurations
+
+Use the Home screen’s normal-day/Diwali switch. The Home container selects the fixture, fetches and validates it, then updates the active theme and sections. The fixtures are in `src/features/config/fixtures.ts`.
+
+## Mock network demonstrations
+
+Network controls are exposed by `mockDataAccess` in `src/services/mock/mockDataAccess.ts`; there is **no in-app developer control panel**. The API can be called from a development harness or test:
+
+```ts
+import { mockDataAccess } from './src/services/mock/mockDataAccess';
+
+mockDataAccess.configureNetwork({
+  latencyMs: 1200,
+  failures: { config: false, doctors: false, slots: false, bookings: false, prescriptions: false },
+  emptyLists: { doctors: false, slots: false, prescriptions: false },
+});
+```
+
+Set an operation’s failure flag to `true` to simulate a failed request. Set a list’s empty flag to `true` to simulate an empty response. `latencyMs` applies to requests. Call `mockDataAccess.reset()` to restore defaults and reset mock session state. A failed config request uses the last valid cached config when one is available; without a valid cache, the existing screen error/retry path handles the failure.
+
+To exercise a booking conflict, attempt to reserve the same currently available `{ doctorId, slotId }` twice through `mockDataAccess.createBooking`. The first request succeeds and the second receives the conflict error. The UI disables duplicate submissions while its request is in flight; conflict scenarios can be set up through the service/test boundary.
+
+## Limitations and scope cuts
+
+- The bottom-tab destinations are registered in code. Configured tab labels may be used, but config does not control tab order or visibility. Doses is an app-supported extension; Family and Profile do not have screens.
+- Family and category-chip actions currently show an informational “coming soon” message. Unsupported Home actions do not navigate to placeholder screens.
+- Mock network controls are programmatic and are not exposed in an in-app demo panel. Data is mock data; there is no production backend.
+- Local notifications, authentication, payments, and unsupported design-reference claims/data are not implemented.
+- Device/simulator verification status for the submission build: **TODO — developer to record device, OS, and flows verified.**
+
+## Submission artifacts
+
+- Screenshots: **TODO — add captured screenshots under `docs/` and list their filenames here.** No screenshot artifacts are currently present in the repository.
+- Demo video: **TODO — add the 2–3 minute demo video under `docs/` and record its filename here.** No demo video is currently present.
+- Android APK/build: **TODO — provide a real Expo build or release link, then add download and installation instructions here.** No APK or build link is currently present; do not use this README as an install link until populated.
+- Development time: **TODO — developer to enter verified hours spent.** No reliable time-spent record is available in the repository.

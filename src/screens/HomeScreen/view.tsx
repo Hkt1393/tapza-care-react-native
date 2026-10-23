@@ -1,21 +1,68 @@
 import type React from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { ActivityIndicator, Animated, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppPressable, AppText, SkeletonBlock } from '../../components';
 import { strings } from '../../constants/strings';
 import { colors } from '../../theme/colors';
-import type { AppScreen, LayoutConfig } from '../../types/domain';
+import type { LayoutConfig } from '../../types/domain';
 import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
 import HomeSectionRenderer from '../../features/home/components/HomeSectionRenderer';
 import type { DoctorItem, ServiceItem } from '../../features/home/sectionData';
 import styles from './styles';
+import { getReducedMotionPreference } from '../../utils/motionPreference';
 
 type ConfigVariant = 'normal' | 'diwali';
+
+interface HomeSectionEntranceProps {
+  index: number;
+  children: React.ReactNode;
+}
+
+const HomeSectionEntrance = ({ index, children }: HomeSectionEntranceProps): React.ReactElement => {
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    let cancelled = false;
+    let animation: Animated.CompositeAnimation | undefined;
+    void getReducedMotionPreference().then((reduceMotion) => {
+      if (cancelled) return;
+      if (reduceMotion) {
+        progress.setValue(1);
+        return;
+      }
+      animation = Animated.timing(progress, {
+        toValue: 1,
+        delay: Math.min(index * 38, 190),
+        duration: 220,
+        useNativeDriver: true,
+      });
+      animation.start();
+    });
+    return () => {
+      cancelled = true;
+      animation?.stop();
+    };
+  }, [index, progress]);
+
+  return (
+    <Animated.View
+      style={{
+        opacity: progress,
+        transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+      }}
+    >
+      {children}
+    </Animated.View>
+  );
+};
 
 export interface HomeScreenViewProps {
   config: LayoutConfig | null;
   theme: RuntimeThemeTokens | null;
+  featuredDoctor: DoctorItem | null;
+  heroGreeting: string | null;
   activeVariant: ConfigVariant;
   isLoading: boolean;
   hasLoadError: boolean;
@@ -23,22 +70,15 @@ export interface HomeScreenViewProps {
   onVariantChange: (variant: ConfigVariant) => void;
   onDoctorPress: (doctor: DoctorItem) => void;
   onServicePress: (service: ServiceItem) => void;
-  onTabPress: (screen: AppScreen) => void;
+  onCategoryPress: (categoryLabel: string) => void;
+  onQuickActionPress: (actionId: string) => void;
 }
-
-const getTabGlyph = (icon: string): string => {
-  switch (icon) {
-    case 'home': return '⌂';
-    case 'calendar': return '▦';
-    case 'clipboard': return '▤';
-    case 'person': return '◉';
-    default: return '•';
-  }
-};
 
 const HomeScreenView = ({
   config,
   theme,
+  featuredDoctor,
+  heroGreeting,
   activeVariant,
   isLoading,
   hasLoadError,
@@ -46,7 +86,8 @@ const HomeScreenView = ({
   onVariantChange,
   onDoctorPress,
   onServicePress,
-  onTabPress,
+  onCategoryPress,
+  onQuickActionPress,
 }: HomeScreenViewProps): React.ReactElement => {
   const backgroundColor = theme?.background;
   const baseBackground = backgroundColor ?? colors.background;
@@ -56,106 +97,84 @@ const HomeScreenView = ({
   const onPrimary = theme?.onPrimary ?? colors.white;
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: baseBackground }]} edges={['top', 'bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: baseBackground }]} edges={['top']}>
       {config !== null && theme !== null ? (
         <>
           <View style={[styles.header, { backgroundColor: theme.surface }]}>
             <View style={styles.headerTitleRow}>
+              <View style={[styles.brandMark, { backgroundColor: theme.primary }]} accessibilityElementsHidden>
+                <AppText style={[styles.brandMarkText, { color: theme.onPrimary }]}>+</AppText>
+              </View>
               <View style={styles.headerCopy}>
                 <AppText style={[styles.appTitle, { color: theme.textPrimary }]}>{strings.home.title}</AppText>
                 <AppText style={[styles.headerSubtitle, { color: theme.textSecondary }]}>{strings.home.subtitle}</AppText>
               </View>
-              {config.theme.festival ? (
-                <View style={[styles.festivalBadge, { backgroundColor: theme.accent }]}>
-                  <AppText style={[styles.festivalBadgeLabel, { color: theme.onAccent }]}>{config.theme.festival.name}</AppText>
-                </View>
-              ) : null}
+              <View style={[styles.themeSwitch, { backgroundColor: theme.surfaceTint }]} accessibilityLabel={strings.home.switchHint}>
+                <AppPressable
+                  accessibilityRole="button"
+                  accessibilityLabel={strings.home.everydayTheme}
+                  accessibilityState={{ selected: activeVariant === 'normal', disabled: isLoading }}
+                  disabled={isLoading}
+                  onPress={() => onVariantChange('normal')}
+                  style={[styles.themeOption, activeVariant === 'normal' && { backgroundColor: theme.primary }]}
+                >
+                  <AppText style={[styles.themeOptionLabel, { color: activeVariant === 'normal' ? theme.onPrimary : theme.textSecondary }]}>
+                    {strings.home.everydayTheme}
+                  </AppText>
+                </AppPressable>
+                <AppPressable
+                  accessibilityRole="button"
+                  accessibilityLabel={strings.home.diwaliTheme}
+                  accessibilityState={{ selected: activeVariant === 'diwali', disabled: isLoading }}
+                  disabled={isLoading}
+                  onPress={() => onVariantChange('diwali')}
+                  style={[styles.themeOption, activeVariant === 'diwali' && { backgroundColor: theme.primary }]}
+                >
+                  <AppText style={[styles.themeOptionLabel, { color: activeVariant === 'diwali' ? theme.onPrimary : theme.textSecondary }]}>
+                    {strings.home.diwaliTheme}
+                  </AppText>
+                </AppPressable>
+                {isLoading ? (
+                  <ActivityIndicator
+                    accessibilityLabel={strings.home.loadingTheme}
+                    color={primary}
+                    size="small"
+                    style={styles.switchLoading}
+                  />
+                ) : null}
+              </View>
             </View>
-
-            <View style={styles.themeSwitch} accessibilityLabel={strings.home.switchHint}>
-              <AppPressable
-                accessibilityRole="button"
-                accessibilityLabel={strings.home.everydayTheme}
-                accessibilityState={{ selected: activeVariant === 'normal', disabled: isLoading }}
-                disabled={isLoading}
-                onPress={() => onVariantChange('normal')}
-                style={[
-                  styles.themeOption,
-                  activeVariant === 'normal' && { backgroundColor: theme.primary },
-                ]}
-              >
-                <AppText style={[
-                  styles.themeOptionLabel,
-                  { color: activeVariant === 'normal' ? theme.onPrimary : theme.textSecondary },
-                ]}>
-                  {strings.home.everydayTheme}
-                </AppText>
-              </AppPressable>
-              <AppPressable
-                accessibilityRole="button"
-                accessibilityLabel={strings.home.diwaliTheme}
-                accessibilityState={{ selected: activeVariant === 'diwali', disabled: isLoading }}
-                disabled={isLoading}
-                onPress={() => onVariantChange('diwali')}
-                style={[
-                  styles.themeOption,
-                  activeVariant === 'diwali' && { backgroundColor: theme.primary },
-                ]}
-              >
-                <AppText style={[
-                  styles.themeOptionLabel,
-                  { color: activeVariant === 'diwali' ? theme.onPrimary : theme.textSecondary },
-                ]}>
-                  {strings.home.diwaliTheme}
-                </AppText>
-              </AppPressable>
-              {isLoading ? (
-                <ActivityIndicator
-                  accessibilityLabel={strings.home.loadingTheme}
-                  color={primary}
-                  size="small"
-                  style={styles.switchLoading}
-                />
-              ) : null}
-            </View>
+            {config.theme.festival ? (
+              <View style={[styles.festivalBadge, { backgroundColor: theme.surfaceTint }]}>
+                <AppText style={[styles.festivalBadgeLabel, { color: theme.primary }]}>{config.theme.festival.name}</AppText>
+              </View>
+            ) : null}
           </View>
 
           <ScrollView
             contentContainerStyle={styles.sections}
             showsVerticalScrollIndicator={false}
           >
-            {config.sections.map((section) => (
-              <HomeSectionRenderer
-                key={section.id}
-                section={section}
-                theme={theme}
-                onDoctorPress={onDoctorPress}
-                onServicePress={onServicePress}
-              />
+            {heroGreeting !== null ? (
+              <View style={styles.greetingRow}>
+                <AppText style={[styles.greetingText, { color: theme.textPrimary }]}>{heroGreeting}</AppText>
+              </View>
+            ) : null}
+            {config.sections.map((section, index) => (
+              <HomeSectionEntrance key={section.id} index={index}>
+                <HomeSectionRenderer
+                  section={section}
+                  theme={theme}
+                  featuredDoctor={section.type === 'hero_banner' ? featuredDoctor ?? undefined : undefined}
+                  onDoctorPress={onDoctorPress}
+                  onServicePress={onServicePress}
+                  onCategoryPress={onCategoryPress}
+                  onQuickActionPress={onQuickActionPress}
+                />
+              </HomeSectionEntrance>
             ))}
           </ScrollView>
 
-          <View style={[styles.tabBar, { backgroundColor: theme.surface, borderTopColor: theme.textSecondary }]}>
-            {config.tabs.map((tab) => {
-              const selected = tab.screen === 'home';
-              const enabled = tab.screen === 'home' || tab.screen === 'prescriptions';
-              return (
-                <AppPressable
-                  key={tab.id}
-                  accessibilityRole="tab"
-                  accessibilityLabel={tab.label}
-                  accessibilityHint={enabled ? undefined : strings.home.comingSoonHint}
-                  accessibilityState={{ selected, disabled: !enabled }}
-                  disabled={!enabled}
-                  onPress={() => onTabPress(tab.screen)}
-                  style={styles.tabItem}
-                >
-                  <AppText style={[styles.tabGlyph, { color: selected ? theme.primary : mutedText }]}>{getTabGlyph(tab.icon)}</AppText>
-                  <AppText style={[styles.tabLabel, { color: selected ? theme.primary : mutedText }]}>{tab.label}</AppText>
-                </AppPressable>
-              );
-            })}
-          </View>
         </>
       ) : (
         <View style={styles.stateContainer}>

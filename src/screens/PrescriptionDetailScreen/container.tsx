@@ -6,11 +6,14 @@ import { strings } from '../../constants/strings';
 import { mockDataAccess } from '../../services/mock/mockDataAccess';
 import { getDoseTrackingKey, type DoseTakenState, type MedicineTiming, type Prescription } from '../../types/domain';
 import type { PrescriptionDetailModel, PrescriptionMedicineItem } from '../../features/prescriptions/types';
-import type { RootStackScreenProps } from '../../navigation/types';
+import type { PrescriptionDetailScreenProps } from '../../navigation/types';
+import { resolveRuntimeTheme } from '../../theme/runtimeTheme';
+import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
+import { useRuntimeThemeContext } from '../../theme/RuntimeThemeContext';
 import PrescriptionDetailScreenView from './view';
 
 type LoadState = 'loading' | 'ready' | 'error' | 'notFound';
-type Props = RootStackScreenProps<'PrescriptionDetail'>;
+type Props = PrescriptionDetailScreenProps;
 
 const formatIssuedAt = (value: string): string => new Date(value).toLocaleDateString(undefined, {
   year: 'numeric', month: 'long', day: 'numeric',
@@ -50,7 +53,9 @@ const buildDetail = (prescription: Prescription, doseState: DoseTakenState): Pre
 });
 
 const PrescriptionDetailScreenContainer = ({ navigation, route }: Props): React.ReactElement => {
+  const { setActiveTheme, setActiveTabs } = useRuntimeThemeContext();
   const [prescription, setPrescription] = useState<Prescription | null>(null);
+  const [theme, setTheme] = useState<RuntimeThemeTokens | null>(null);
   const [doseState, setDoseState] = useState<DoseTakenState>({});
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [updatingDoseKeys, setUpdatingDoseKeys] = useState<ReadonlySet<string>>(() => new Set());
@@ -63,6 +68,11 @@ const PrescriptionDetailScreenContainer = ({ navigation, route }: Props): React.
     setUpdated(false);
     setUpdateError(null);
     try {
+      const config = await mockDataAccess.fetchConfig();
+      const nextTheme = resolveRuntimeTheme(config);
+      setTheme(nextTheme);
+      setActiveTheme(nextTheme);
+      setActiveTabs(config.tabs);
       const prescriptions = await mockDataAccess.fetchPrescriptions();
       const found = prescriptions.find((item) => item.id === route.params.prescriptionId);
       if (found === undefined) {
@@ -114,6 +124,7 @@ const PrescriptionDetailScreenContainer = ({ navigation, route }: Props): React.
   return (
     <PrescriptionDetailScreenView
       detail={detail}
+      theme={theme}
       loadState={loadState}
       updatingDoseKeys={updatingDoseKeys}
       updated={updated}

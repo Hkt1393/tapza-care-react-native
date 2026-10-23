@@ -4,6 +4,21 @@ const { normalDayConfig, diwaliConfig } = require('../.test-build/src/features/c
 const { LAST_VALID_CONFIG_KEY } = require('../.test-build/src/features/config/configCache.js');
 const { validateLayoutConfig, ConfigValidationError } = require('../.test-build/src/features/config/validateConfig.js');
 const { createMockDataAccess } = require('../.test-build/src/services/mock/mockDataAccess.js');
+const { resolveRuntimeTheme, resolveStatusBarStyle } = require('../.test-build/src/theme/runtimeTheme.js');
+const { colors } = require('../.test-build/src/theme/colors.js');
+
+const contrastRatio = (foreground, background) => {
+  const luminance = (hex) => {
+    const normalized = hex.slice(1);
+    const expanded = normalized.length === 3 ? normalized.split('').map((digit) => digit + digit).join('') : normalized;
+    const channels = [0, 2, 4].map((offset) => Number.parseInt(expanded.slice(offset, offset + 2), 16) / 255);
+    const linear = channels.map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+    return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+  };
+  const first = luminance(foreground);
+  const second = luminance(background);
+  return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+};
 
 const createMemoryStorage = () => {
   const values = new Map();
@@ -19,11 +34,86 @@ test('normal and Diwali configs validate with required content', () => {
   assert.equal(validateLayoutConfig(diwaliConfig).theme.festival.name, 'Diwali');
 });
 
+test('runtime theme maps config colors and retains shared semantic tokens', () => {
+  const normal = resolveRuntimeTheme(normalDayConfig);
+  const diwali = resolveRuntimeTheme(diwaliConfig);
+
+  assert.equal(normal.primary, normalDayConfig.theme.primary);
+  assert.equal(diwali.primary, diwaliConfig.theme.primary);
+  assert.equal(normal.secondary, normalDayConfig.theme.secondary);
+  assert.equal(diwali.accent, diwaliConfig.theme.accent);
+  assert.equal(normal.background, normalDayConfig.theme.background);
+  assert.equal(diwali.surface, diwaliConfig.theme.surface);
+  assert.equal(normal.border, colors.border);
+  assert.equal(diwali.success, colors.success);
+  assert.equal(diwali.successText, colors.successText);
+  assert.equal(diwali.error, colors.error);
+});
+
+test('small runtime and success text colors meet 4.5:1 contrast in both themes', () => {
+  for (const config of [normalDayConfig, diwaliConfig]) {
+    const theme = resolveRuntimeTheme(config);
+    assert.ok(contrastRatio(theme.textSecondary, theme.background) >= 4.5);
+    assert.ok(contrastRatio(theme.successText, theme.surface) >= 4.5);
+  }
+});
+
+test('status bar content contrasts with the active theme background', () => {
+  assert.equal(resolveStatusBarStyle(normalDayConfig.theme.background), 'dark');
+  assert.equal(resolveStatusBarStyle(diwaliConfig.theme.background), 'dark');
+  assert.equal(resolveStatusBarStyle('#153632'), 'light');
+});
+
 test('unknown section types are retained and malformed config is rejected', () => {
   const source = structuredClone(normalDayConfig);
   source.sections.push({ id: 'future-section', type: 'future_type', background: { kind: 'color', value: '#FFFFFF' }, items: [{ anything: true }] });
   assert.equal(validateLayoutConfig(source).sections.at(-1).type, 'future_type');
   assert.throws(() => validateLayoutConfig({ ...source, theme: { ...source.theme, primary: 'green' } }), ConfigValidationError);
+});
+
+test('assignment tab values and the app-only Doses extension validate explicitly', () => {
+  const source = structuredClone(normalDayConfig);
+  source.tabs.push({ id: 'profile', label: 'Profile', icon: 'person', screen: 'profile' });
+  source.tabs.push({ id: 'future', label: 'Future', icon: 'future', screen: 'not-supported' });
+  const validated = validateLayoutConfig(source);
+
+  assert.deepEqual(validated.tabs.map((tab) => tab.screen), [
+    'home', 'bookings', 'prescriptions', 'doses', 'profile',
+  ]);
+
+  const unsupportedOnly = structuredClone(normalDayConfig);
+  unsupportedOnly.tabs = [{ id: 'future', label: 'Future', icon: 'future', screen: 'not-supported' }];
+  assert.throws(() => validateLayoutConfig(unsupportedOnly), ConfigValidationError);
+});
+
+test('a fetched config is validated and cached, then used after a later request failure', async () => {
+  const memory = createMemoryStorage();
+  const services = createMockDataAccess({ storage: memory });
+  const fetched = await services.fetchConfig();
+
+  assert.deepEqual(memory.values.get(LAST_VALID_CONFIG_KEY), fetched);
+  services.selectConfig('diwali');
+  services.configureNetwork({ failures: { config: true } });
+
+  const fallback = await services.fetchConfig();
+  assert.deepEqual(fallback, validateLayoutConfig(fetched));
+  assert.deepEqual(memory.values.get(LAST_VALID_CONFIG_KEY), fetched);
+});
+
+test('failed config fetch rejects when the stored fallback is malformed', async () => {
+  const memory = createMemoryStorage();
+  const services = createMockDataAccess({ storage: memory });
+  memory.values.set(LAST_VALID_CONFIG_KEY, { version: 1, theme: {}, tabs: [], sections: [] });
+  services.configureNetwork({ failures: { config: true } });
+
+  await assert.rejects(services.fetchConfig());
+});
+
+test('failed config fetch rejects when no valid cached config exists', async () => {
+  const services = createMockDataAccess({ storage: createMemoryStorage() });
+  services.configureNetwork({ failures: { config: true } });
+
+  await assert.rejects(services.fetchConfig());
 });
 
 test('invalid config does not replace the last validated cached config', async () => {
