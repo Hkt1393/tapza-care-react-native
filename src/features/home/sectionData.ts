@@ -15,6 +15,7 @@ export interface ServiceItem {
   name: string;
   imageUrl: string;
   priceInr: number;
+  doctorId?: string;
   badge?: string;
 }
 
@@ -72,6 +73,7 @@ const parseServiceItem = (value: unknown): ServiceItem | null => {
     name: value.name,
     imageUrl: value.imageUrl,
     priceInr: value.priceInr,
+    ...(isNonEmptyString(value.doctorId) ? { doctorId: value.doctorId } : {}),
     ...(typeof value.badge === 'string' ? { badge: value.badge } : {}),
   };
 };

@@ -7,6 +7,7 @@ import { colors } from '../../theme/colors';
 import type { LayoutConfig } from '../../types/domain';
 import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
 import HomeSectionRenderer from '../../features/home/components/HomeSectionRenderer';
+import type { DoctorItem, ServiceItem } from '../../features/home/sectionData';
 import styles from './styles';
 
 type ConfigVariant = 'normal' | 'diwali';
@@ -19,6 +20,8 @@ export interface HomeScreenViewProps {
   hasLoadError: boolean;
   onRetry: () => void;
   onVariantChange: (variant: ConfigVariant) => void;
+  onDoctorPress: (doctor: DoctorItem) => void;
+  onServicePress: (service: ServiceItem) => void;
 }
 
 const getTabGlyph = (icon: string): string => {
@@ -39,6 +42,8 @@ const HomeScreenView = ({
   hasLoadError,
   onRetry,
   onVariantChange,
+  onDoctorPress,
+  onServicePress,
 }: HomeScreenViewProps): React.ReactElement => {
   const backgroundColor = theme?.background;
   const baseBackground = backgroundColor ?? colors.background;
@@ -117,7 +122,13 @@ const HomeScreenView = ({
             showsVerticalScrollIndicator={false}
           >
             {config.sections.map((section) => (
-              <HomeSectionRenderer key={section.id} section={section} theme={theme} />
+              <HomeSectionRenderer
+                key={section.id}
+                section={section}
+                theme={theme}
+                onDoctorPress={onDoctorPress}
+                onServicePress={onServicePress}
+              />
             ))}
           </ScrollView>
 
