@@ -2,21 +2,41 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { mockDataAccess } from '../../services/mock/mockDataAccess';
-import type { AppScreen, LayoutConfig } from '../../types/domain';
+import type { LayoutConfig } from '../../types/domain';
 import { resolveRuntimeTheme } from '../../theme/runtimeTheme';
+import { useRuntimeThemeContext } from '../../theme/RuntimeThemeContext';
 import type { BookingTarget } from '../../features/booking/types';
 import { getHomeSectionModel, type DoctorItem, type ServiceItem } from '../../features/home/sectionData';
-import type { RootStackScreenProps } from '../../navigation/types';
+import type { HomeScreenProps } from '../../navigation/types';
 import BookingScreen from '../BookingScreen';
 import HomeScreenView from './view';
 
 type ConfigVariant = 'normal' | 'diwali';
-type Props = RootStackScreenProps<'Home'>;
+type Props = HomeScreenProps;
 
 const getConfigVariant = (config: LayoutConfig): ConfigVariant =>
   config.theme.festival?.name === 'Diwali' ? 'diwali' : 'normal';
 
+const getFeaturedDoctor = (config: LayoutConfig | null): DoctorItem | null => {
+  if (config === null) return null;
+  for (const section of config.sections) {
+    const model = getHomeSectionModel(section);
+    if (model?.type === 'doctor_carousel' && model.items.length > 0) return model.items[0];
+  }
+  return null;
+};
+
+const getHeroGreeting = (config: LayoutConfig | null): string | null => {
+  if (config === null) return null;
+  for (const section of config.sections) {
+    const model = getHomeSectionModel(section);
+    if (model?.type === 'hero_banner' && model.items[0]?.greeting !== undefined) return model.items[0].greeting;
+  }
+  return config.theme.festival?.greeting ?? null;
+};
+
 const HomeScreenContainer = ({ navigation }: Props): React.ReactElement => {
+  const { setActiveTheme, setActiveTabs } = useRuntimeThemeContext();
   const [config, setConfig] = useState<LayoutConfig | null>(null);
   const [activeVariant, setActiveVariant] = useState<ConfigVariant>('normal');
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +52,8 @@ const HomeScreenContainer = ({ navigation }: Props): React.ReactElement => {
       const nextConfig = await mockDataAccess.fetchConfig();
       setConfig(nextConfig);
       setActiveVariant(getConfigVariant(nextConfig));
+      setActiveTheme(resolveRuntimeTheme(nextConfig));
+      setActiveTabs(nextConfig.tabs);
     } catch {
       setHasLoadError(true);
     } finally {
@@ -73,11 +95,28 @@ const HomeScreenContainer = ({ navigation }: Props): React.ReactElement => {
     });
   };
 
+  const handleQuickActionPress = (actionId: string): void => {
+    if (actionId === 'prescriptions') {
+      navigation.navigate('Prescriptions', { screen: 'Prescriptions' });
+      return;
+    }
+    if (actionId === 'reminders') {
+      navigation.navigate('Doses', { screen: 'Doses' });
+      return;
+    }
+    if (actionId === 'book') {
+      const doctor = getFeaturedDoctor(config);
+      if (doctor !== null) handleDoctorPress(doctor);
+    }
+  };
+
   return (
     <>
       <HomeScreenView
         config={config}
         theme={config === null ? null : resolveRuntimeTheme(config)}
+        featuredDoctor={getFeaturedDoctor(config)}
+        heroGreeting={getHeroGreeting(config)}
         activeVariant={activeVariant}
         isLoading={isLoading}
         hasLoadError={hasLoadError}
@@ -85,9 +124,7 @@ const HomeScreenContainer = ({ navigation }: Props): React.ReactElement => {
         onVariantChange={handleVariantChange}
         onDoctorPress={handleDoctorPress}
         onServicePress={handleServicePress}
-        onTabPress={(screen: AppScreen) => {
-          if (screen === 'prescriptions') navigation.navigate('Prescriptions');
-        }}
+        onQuickActionPress={handleQuickActionPress}
       />
       {bookingTarget !== null && config !== null ? (
         <BookingScreen

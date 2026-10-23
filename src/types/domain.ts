@@ -1,7 +1,7 @@
 export type MedicineTiming = 'morning' | 'afternoon' | 'night';
 export type DoseSchedule = MedicineTiming[];
 
-export type AppScreen = 'home' | 'bookings' | 'prescriptions' | 'profile';
+export type AppScreen = 'home' | 'bookings' | 'prescriptions' | 'doses' | 'profile';
 
 export interface LayoutTheme {
   primary: string;

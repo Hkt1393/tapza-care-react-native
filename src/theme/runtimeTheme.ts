@@ -11,6 +11,14 @@ export interface RuntimeThemeTokens {
   accent: string;
   onPrimary: string;
   onAccent: string;
+  surfaceTint: string;
+  border: string;
+  textTertiary: string;
+  success: string;
+  successText: string;
+  warning: string;
+  error: string;
+  overlay: string;
 }
 
 export interface ResolvedSectionBackground {
@@ -52,6 +60,14 @@ export const resolveRuntimeTheme = (config: LayoutConfig): RuntimeThemeTokens =>
   accent: config.theme.accent,
   onPrimary: contrastingTextColor(config.theme.primary),
   onAccent: contrastingTextColor(config.theme.accent),
+  surfaceTint: colors.surfaceTint,
+  border: colors.border,
+  textTertiary: colors.textTertiary,
+  success: colors.success,
+  successText: colors.successText,
+  warning: colors.warning,
+  error: colors.error,
+  overlay: colors.overlay,
 });
 
 export const resolveSectionBackground = (

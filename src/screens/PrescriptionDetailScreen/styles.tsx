@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     flexDirection: 'row',
-    minHeight: 44,
+    minHeight: dimensions.minimumTouchTarget,
     paddingRight: spacing.sm,
   },
   backGlyph: {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: dimensions.borderRadius,
     borderWidth: 1,
-    padding: spacing.md,
+    padding: dimensions.cardPadding,
   },
   doctor: {
     color: colors.text,
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: dimensions.borderRadius,
     borderWidth: 1,
-    padding: spacing.md,
+    padding: dimensions.cardPadding,
   },
   medicineName: {
     color: colors.text,
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxs,
   },
   takenStatus: {
-    color: colors.success,
+    color: colors.successText,
   },
   notTakenStatus: {
     color: colors.textMuted,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     borderRadius: dimensions.borderRadiusSmall,
     borderWidth: 1,
     justifyContent: 'center',
-    minHeight: 44,
+    minHeight: dimensions.minimumTouchTarget,
     minWidth: 118,
     paddingHorizontal: spacing.sm,
   },
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     opacity: 0.65,
   },
   updatedMessage: {
-    color: colors.success,
+    color: colors.successText,
     fontSize: typography.bodySmall,
     fontWeight: '700',
     textAlign: 'center',
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     borderRadius: dimensions.borderRadius,
     borderWidth: 1,
     gap: spacing.sm,
-    padding: spacing.md,
+    padding: dimensions.cardPadding,
   },
   skeletonDoctor: {
     height: 22,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: dimensions.borderRadius,
     borderWidth: 1,
     gap: spacing.sm,
-    padding: spacing.md,
+    padding: dimensions.cardPadding,
   },
   skeletonMedicineName: {
     height: 20,

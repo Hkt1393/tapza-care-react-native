@@ -13,6 +13,7 @@ export interface LabeledItem {
 export interface ServiceItem {
   id: string;
   name: string;
+  description?: string;
   imageUrl: string;
   priceInr: number;
   doctorId?: string;
@@ -67,10 +68,12 @@ const parseServiceItem = (value: unknown): ServiceItem | null => {
   if (!isRecord(value) || !isNonEmptyString(value.id) || !isNonEmptyString(value.name)) return null;
   if (!isNonEmptyString(value.imageUrl) || !/^https?:\/\//i.test(value.imageUrl)) return null;
   if (typeof value.priceInr !== 'number' || !Number.isFinite(value.priceInr) || value.priceInr < 0) return null;
+  if (value.description !== undefined && !isNonEmptyString(value.description)) return null;
   if (value.badge !== undefined && !isNonEmptyString(value.badge)) return null;
   return {
     id: value.id,
     name: value.name,
+    ...(typeof value.description === 'string' ? { description: value.description } : {}),
     imageUrl: value.imageUrl,
     priceInr: value.priceInr,
     ...(isNonEmptyString(value.doctorId) ? { doctorId: value.doctorId } : {}),

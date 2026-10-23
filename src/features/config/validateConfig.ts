@@ -35,6 +35,7 @@ const parseAppScreen = (value: string, path: string): AppScreen => {
     case 'home':
     case 'bookings':
     case 'prescriptions':
+    case 'doses':
     case 'profile':
       return value;
     default:

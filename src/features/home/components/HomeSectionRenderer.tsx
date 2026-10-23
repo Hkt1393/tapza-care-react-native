@@ -14,8 +14,10 @@ import styles from './homeSectionStyles';
 interface HomeSectionRendererProps {
   section: LayoutSection;
   theme: RuntimeThemeTokens;
+  featuredDoctor?: DoctorItem;
   onDoctorPress?: (doctor: DoctorItem) => void;
   onServicePress?: (service: ServiceItem) => void;
+  onQuickActionPress?: (actionId: string) => void;
 }
 
 const parseGradientStops = (value: string): [string, string, ...string[]] | null => {
@@ -91,7 +93,7 @@ const getActionGlyph = (id: string): string => {
   }
 };
 
-const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: HomeSectionRendererProps): React.ReactElement | null => {
+const HomeSectionRenderer = ({ section, theme, featuredDoctor, onDoctorPress, onServicePress, onQuickActionPress }: HomeSectionRendererProps): React.ReactElement | null => {
   const model = getHomeSectionModel(section);
   if (model === null) return null;
   const background = resolveSectionBackground(section.background, theme);
@@ -103,14 +105,27 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
       <View style={styles.sectionContent}>
         {model.type === 'hero_banner' ? (
           <View style={styles.heroContent}>
-            <AppText style={[styles.heroEyebrow, { color: foreground }]}>
-              {model.items[0]?.greeting ?? section.title ?? strings.home.title}
-            </AppText>
             <AppText style={[styles.heroTitle, { color: foreground }]}>
               {section.title ?? model.items[0]?.greeting ?? strings.home.title}
             </AppText>
             {model.items[0]?.subtitle ? (
               <AppText style={[styles.heroSubtitle, { color: foreground }]}>{model.items[0].subtitle}</AppText>
+            ) : null}
+            {featuredDoctor !== undefined && onDoctorPress !== undefined ? (
+              <AppPressable
+                accessibilityRole="button"
+                accessibilityLabel={strings.booking.doctorAccessibility(featuredDoctor.name)}
+                accessibilityHint={strings.booking.actions.bookDoctor}
+                onPress={() => onDoctorPress(featuredDoctor)}
+                style={[styles.heroAction, { backgroundColor: theme.surface }]}
+              >
+                <AppText style={[styles.heroActionLabel, { color: theme.primary }]}>
+                  {strings.booking.actions.bookDoctor} · {getPriceLabel(featuredDoctor.feeInr)}
+                </AppText>
+                <AppText style={[styles.heroActionArrow, { color: theme.primary }]} accessibilityElementsHidden>
+                  →
+                </AppText>
+              </AppPressable>
             ) : null}
           </View>
         ) : null}
@@ -120,7 +135,7 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
             <SectionHeading title={section.title} color={foreground} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
               {model.items.map((item) => (
-                <View key={item.id} style={[styles.categoryChip, { backgroundColor: theme.surface }]}>
+                <View key={item.id} style={[styles.categoryChip, { backgroundColor: theme.surfaceTint }]}>
                   <AppText style={[styles.categoryLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
                 </View>
               ))}
@@ -132,14 +147,30 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
           <>
             <SectionHeading title={section.title} color={foreground} />
             <View style={styles.actionGrid}>
-              {model.items.map((item) => (
-                <View key={item.id} style={[styles.actionTile, { backgroundColor: theme.surface }]}>
-                  <View style={[styles.actionIcon, { backgroundColor: theme.accent }]}>
-                    <AppText style={[styles.actionInitial, { color: theme.onAccent }]}>{getActionGlyph(item.id)}</AppText>
-                  </View>
-                  <AppText style={[styles.actionLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
-                </View>
-              ))}
+              {model.items.map((item) => {
+                const isSupportedAction = onQuickActionPress !== undefined
+                  && (item.id === 'book' || item.id === 'prescriptions' || item.id === 'reminders');
+                const actionHint = item.id === 'book'
+                  ? strings.booking.actions.bookDoctor
+                  : item.id === 'reminders' ? strings.doses.openHint : strings.home.openPrescriptionsHint;
+                return (
+                  <AppPressable
+                    key={item.id}
+                    accessibilityRole={isSupportedAction ? 'button' : undefined}
+                    accessibilityLabel={item.label}
+                    accessibilityHint={isSupportedAction ? actionHint : undefined}
+                    accessibilityState={{ disabled: !isSupportedAction }}
+                    disabled={!isSupportedAction}
+                    onPress={() => onQuickActionPress?.(item.id)}
+                    style={[styles.actionTile, { backgroundColor: theme.surface }]}
+                  >
+                    <View style={[styles.actionIcon, { backgroundColor: theme.surfaceTint }]}>
+                      <AppText style={[styles.actionInitial, { color: theme.primary }]}>{getActionGlyph(item.id)}</AppText>
+                    </View>
+                    <AppText style={[styles.actionLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
+                  </AppPressable>
+                );
+              })}
             </View>
           </>
         ) : null}
@@ -158,15 +189,23 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
                   onPress={() => onServicePress?.(item)}
                   style={[styles.serviceCard, { backgroundColor: theme.surface }]}
                 >
-                  <Image
-                    source={{ uri: item.imageUrl }}
-                    style={styles.serviceImage}
-                    accessibilityRole="image"
-                    accessibilityLabel={item.name}
-                  />
-                  {item.badge ? <AppText style={[styles.serviceBadge, { color: theme.onAccent, backgroundColor: theme.accent }]}>{item.badge}</AppText> : null}
+                  <View style={styles.serviceImageContainer}>
+                    <Image
+                      source={{ uri: item.imageUrl }}
+                      style={styles.serviceImage}
+                      accessibilityRole="image"
+                      accessibilityLabel={item.name}
+                    />
+                    {item.badge ? <AppText style={[styles.serviceBadge, { color: theme.onAccent, backgroundColor: theme.accent }]}>{item.badge}</AppText> : null}
+                  </View>
                   <AppText style={[styles.serviceName, { color: theme.textPrimary }]}>{item.name}</AppText>
+                  {item.description ? <AppText style={[styles.serviceDescription, { color: theme.textSecondary }]}>{item.description}</AppText> : null}
                   <AppText style={[styles.servicePrice, { color: theme.primary }]}>{getPriceLabel(item.priceInr)}</AppText>
+                  {item.doctorId && onServicePress ? (
+                    <View style={[styles.serviceBookButton, { backgroundColor: theme.surfaceTint }]}>
+                      <AppText style={[styles.serviceBookLabel, { color: theme.primary }]}>{strings.booking.actions.bookService}</AppText>
+                    </View>
+                  ) : null}
                 </AppPressable>
               ))}
             </View>
@@ -187,11 +226,20 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
                   onPress={() => onDoctorPress?.(doctor)}
                   style={[styles.doctorCard, { backgroundColor: theme.surface }]}
                 >
-                  <Image source={{ uri: doctor.photoUrl }} style={styles.doctorImage} accessibilityRole="image" accessibilityLabel={doctor.name} />
-                  <AppText style={[styles.doctorName, { color: theme.textPrimary }]}>{doctor.name}</AppText>
-                  <AppText style={[styles.doctorSpecialty, { color: theme.textSecondary }]}>{doctor.specialty}</AppText>
-                  <AppText style={[styles.doctorAvailability, { color: theme.primary }]}>{doctor.nextAvailableAt}</AppText>
-                  <AppText style={[styles.doctorFee, { color: theme.textPrimary }]}>{getPriceLabel(doctor.feeInr)}</AppText>
+                  <View style={styles.doctorHeader}>
+                    <Image source={{ uri: doctor.photoUrl }} style={styles.doctorImage} accessibilityRole="image" accessibilityLabel={doctor.name} />
+                    <View style={styles.doctorCopy}>
+                      <AppText style={[styles.doctorName, { color: theme.textPrimary }]}>{doctor.name}</AppText>
+                      <AppText style={[styles.doctorSpecialty, { color: theme.textSecondary }]}>{doctor.specialty}</AppText>
+                    </View>
+                  </View>
+                  <AppText style={[styles.doctorAvailability, { color: theme.primary, backgroundColor: theme.surfaceTint }]}>{doctor.nextAvailableAt}</AppText>
+                  <View style={styles.doctorFooter}>
+                    <AppText style={[styles.doctorFee, { color: theme.textPrimary }]}>{getPriceLabel(doctor.feeInr)}</AppText>
+                  </View>
+                  <View style={[styles.doctorBookButton, { backgroundColor: theme.primary }]}>
+                    <AppText style={[styles.doctorBookLabel, { color: theme.onPrimary }]}>{strings.booking.actions.bookDoctor}</AppText>
+                  </View>
                 </AppPressable>
               ))}
             </ScrollView>
@@ -200,9 +248,14 @@ const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: 
 
         {model.type === 'offer_strip' ? (
           <View style={styles.offerContent}>
-            {model.items.map((item) => (
-              <AppText key={item.message} style={[styles.offerText, { color: foreground }]}>{item.message}</AppText>
-            ))}
+            <View style={[styles.offerMark, { backgroundColor: theme.surface }]} accessibilityElementsHidden>
+              <AppText style={[styles.offerMarkText, { color: theme.primary }]}>◇</AppText>
+            </View>
+            <View style={styles.offerCopy}>
+              {model.items.map((item) => (
+                <AppText key={item.message} style={[styles.offerText, { color: foreground }]}>{item.message}</AppText>
+              ))}
+            </View>
           </View>
         ) : null}
       </View>

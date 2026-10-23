@@ -4,6 +4,8 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { colors } from '../../theme/colors';
+
 export interface ScreenContainerProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -40,7 +42,7 @@ const ScreenContainer = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
