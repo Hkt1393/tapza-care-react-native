@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, dimensions, spacing, typography } from '../../theme';
+import { colors, dimensions, shadows, spacing, typography } from '../../theme';
 
 const styles = StyleSheet.create({
   scrim: {
@@ -16,9 +16,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: dimensions.borderRadiusSheet,
     maxHeight: '92%',
     minHeight: '58%',
-    overflow: 'hidden',
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.lg,
+    ...shadows.sheet,
   },
   dragRegion: {
     alignItems: 'center',

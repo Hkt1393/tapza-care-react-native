@@ -53,13 +53,16 @@ test('HomeSectionRenderer renders a section and safely skips unknown types', () 
       return {
         Image: 'Image',
         ImageBackground: 'ImageBackground',
+        Dimensions: { get: () => ({ width: 390, height: 844 }) },
         Platform: { select: (options) => options.default ?? options.ios ?? options.android },
         ScrollView: 'ScrollView',
         StyleSheet: { create: (value) => value },
+        useWindowDimensions: () => ({ width: 390, height: 844 }),
         View: 'View',
       };
     }
     if (request === 'expo-linear-gradient') return { LinearGradient: 'LinearGradient' };
+    if (request === '@react-native-vector-icons/ionicons') return { Ionicons: 'Ionicons' };
     if (request === '../../../components') return { AppPressable: 'AppPressable', AppText: 'AppText' };
     return originalLoad.call(this, request, parent, isMain);
   };
@@ -110,10 +113,14 @@ test('HomeSectionRenderer renders a section and safely skips unknown types', () 
     onQuickActionPress: (actionId) => pressedActions.push(actionId),
   });
   const quickActionPressables = findElements(quickActionsView, 'AppPressable');
+  const quickActionIcons = findElements(quickActionsView, 'Ionicons');
   const enabledActions = quickActionPressables.filter((element) => !element.props.disabled);
-  assert.equal(enabledActions.length, 3);
+  assert.equal(enabledActions.length, 4);
+  assert.deepEqual(quickActionIcons.map((element) => element.props.name), [
+    'calendar-outline', 'document-text-outline', 'alarm-outline', 'people-outline',
+  ]);
   enabledActions.forEach((element) => element.props.onPress());
-  assert.deepEqual(pressedActions.sort(), ['book', 'prescriptions', 'reminders']);
+  assert.deepEqual(pressedActions.sort(), ['book', 'family', 'prescriptions', 'reminders']);
 
   const serviceSection = config.sections.find((section) => section.type === 'service_grid');
   const serviceModel = getHomeSectionModel(serviceSection);

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
-import { dimensions, spacing, typography } from '../../theme';
+import { dimensions, shadows, spacing, typography } from '../../theme';
 
 const styles = StyleSheet.create({
   safeArea: { backgroundColor: colors.background, flex: 1 },
@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: typography.h2, fontWeight: '700' },
   subtitle: { color: colors.textMuted, fontSize: typography.bodySmall, marginTop: spacing.xs },
   list: { gap: spacing.md, padding: spacing.lg },
-  card: { borderColor: colors.border, borderRadius: dimensions.borderRadius, borderWidth: 1, flexDirection: 'row', gap: spacing.md, justifyContent: 'space-between', padding: spacing.md },
+  card: { borderColor: colors.border, borderRadius: dimensions.borderRadius, borderWidth: 1, flexDirection: 'row', gap: spacing.md, justifyContent: 'space-between', padding: spacing.md, ...shadows.sm },
   copy: { flex: 1, gap: spacing.xxs },
   medicine: { color: colors.text, fontSize: typography.body, fontWeight: '700' },
   detail: { color: colors.textMuted, fontSize: typography.caption },

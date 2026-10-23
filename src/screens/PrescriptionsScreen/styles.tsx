@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, dimensions, spacing, typography } from '../../theme';
+import { colors, dimensions, shadows, spacing, typography } from '../../theme';
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: dimensions.borderRadius,
     borderWidth: 1,
     padding: dimensions.cardPadding,
+    ...shadows.sm,
   },
   doctor: {
     color: colors.text,

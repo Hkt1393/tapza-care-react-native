@@ -31,7 +31,7 @@ const DosesStack = createNativeStackNavigator<DosesStackParamList>();
 
 const HomeStackNavigator = (): React.ReactElement => (
   <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-    <HomeStack.Screen name="Home" component={HomeScreen} />
+    <HomeStack.Screen name="HomeLanding" component={HomeScreen} />
   </HomeStack.Navigator>
 );
 
@@ -39,7 +39,7 @@ const PrescriptionsStackNavigator = (): React.ReactElement => {
   const { activeTheme } = useRuntimeThemeContext();
   return (
     <PrescriptionsStack.Navigator screenOptions={{ headerShown: false }}>
-      <PrescriptionsStack.Screen name="Prescriptions" component={PrescriptionsScreen} />
+      <PrescriptionsStack.Screen name="PrescriptionList" component={PrescriptionsScreen} />
       <PrescriptionsStack.Screen
         name="PrescriptionDetail"
         component={PrescriptionDetailScreen}
@@ -56,13 +56,13 @@ const PrescriptionsStackNavigator = (): React.ReactElement => {
 
 const BookStackNavigator = (): React.ReactElement => (
   <BookStack.Navigator screenOptions={{ headerShown: false }}>
-    <BookStack.Screen name="Book" component={BookScreen} />
+    <BookStack.Screen name="BookDirectory" component={BookScreen} />
   </BookStack.Navigator>
 );
 
 const DosesStackNavigator = (): React.ReactElement => (
   <DosesStack.Navigator screenOptions={{ headerShown: false }}>
-    <DosesStack.Screen name="Doses" component={DosesScreen} />
+    <DosesStack.Screen name="DoseTracker" component={DosesScreen} />
   </DosesStack.Navigator>
 );
 

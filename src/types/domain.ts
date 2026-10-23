@@ -1,7 +1,11 @@
 export type MedicineTiming = 'morning' | 'afternoon' | 'night';
 export type DoseSchedule = MedicineTiming[];
 
-export type AppScreen = 'home' | 'bookings' | 'prescriptions' | 'doses' | 'profile';
+/** Screen values defined by the assignment's remote configuration contract. */
+export type ConfigScreen = 'home' | 'bookings' | 'prescriptions' | 'profile';
+
+/** App-only destinations extend the config contract when they have real screens. */
+export type AppScreen = ConfigScreen | 'doses';
 
 export interface LayoutTheme {
   primary: string;

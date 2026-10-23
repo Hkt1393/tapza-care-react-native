@@ -1,6 +1,8 @@
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 
+import { strings } from '../../constants/strings';
 import { mockDataAccess } from '../../services/mock/mockDataAccess';
 import type { LayoutConfig } from '../../types/domain';
 import { resolveRuntimeTheme } from '../../theme/runtimeTheme';
@@ -96,18 +98,34 @@ const HomeScreenContainer = ({ navigation }: Props): React.ReactElement => {
   };
 
   const handleQuickActionPress = (actionId: string): void => {
+    if (actionId === 'family') {
+      Alert.alert(
+        strings.home.familyComingSoon.title,
+        strings.home.familyComingSoon.message,
+        [{ text: strings.home.familyComingSoon.action }],
+      );
+      return;
+    }
     if (actionId === 'prescriptions') {
-      navigation.navigate('Prescriptions', { screen: 'Prescriptions' });
+      navigation.navigate('Prescriptions', { screen: 'PrescriptionList' });
       return;
     }
     if (actionId === 'reminders') {
-      navigation.navigate('Doses', { screen: 'Doses' });
+      navigation.navigate('Doses', { screen: 'DoseTracker' });
       return;
     }
     if (actionId === 'book') {
       const doctor = getFeaturedDoctor(config);
       if (doctor !== null) handleDoctorPress(doctor);
     }
+  };
+
+  const handleCategoryPress = (categoryLabel: string): void => {
+    Alert.alert(
+      strings.home.categoryComingSoon.title(categoryLabel),
+      strings.home.categoryComingSoon.message,
+      [{ text: strings.home.categoryComingSoon.action }],
+    );
   };
 
   return (
@@ -124,6 +142,7 @@ const HomeScreenContainer = ({ navigation }: Props): React.ReactElement => {
         onVariantChange={handleVariantChange}
         onDoctorPress={handleDoctorPress}
         onServicePress={handleServicePress}
+        onCategoryPress={handleCategoryPress}
         onQuickActionPress={handleQuickActionPress}
       />
       {bookingTarget !== null && config !== null ? (

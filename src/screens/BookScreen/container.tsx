@@ -1,10 +1,9 @@
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { mockDataAccess } from '../../services/mock/mockDataAccess';
-import type { Doctor, LayoutConfig } from '../../types/domain';
+import type { Doctor } from '../../types/domain';
 import { resolveRuntimeTheme } from '../../theme/runtimeTheme';
-import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
 import { useRuntimeThemeContext } from '../../theme/RuntimeThemeContext';
 import type { BookScreenProps } from '../../navigation/types';
 import type { BookingTarget } from '../../features/booking/types';
@@ -14,25 +13,28 @@ import BookScreenView from './view';
 type LoadState = 'loading' | 'ready' | 'empty' | 'error';
 
 const BookScreenContainer = (_props: BookScreenProps): React.ReactElement => {
-  const { setActiveTheme, setActiveTabs } = useRuntimeThemeContext();
+  const { activeTheme, setActiveTheme, setActiveTabs } = useRuntimeThemeContext();
+  const activeThemeRef = useRef(activeTheme);
+  activeThemeRef.current = activeTheme;
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [theme, setTheme] = useState<RuntimeThemeTokens | null>(null);
-  const [config, setConfig] = useState<LayoutConfig | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [target, setTarget] = useState<BookingTarget | null>(null);
 
   const load = useCallback(async (): Promise<void> => {
     setLoadState('loading');
     try {
+      const initialConfigRequest = activeThemeRef.current === null
+        ? mockDataAccess.fetchConfig()
+        : Promise.resolve(null);
       const [nextConfig, nextDoctors] = await Promise.all([
-        mockDataAccess.fetchConfig(),
+        initialConfigRequest,
         mockDataAccess.fetchDoctors(),
       ]);
-      const nextTheme = resolveRuntimeTheme(nextConfig);
-      setConfig(nextConfig);
-      setTheme(nextTheme);
-      setActiveTheme(nextTheme);
-      setActiveTabs(nextConfig.tabs);
+      if (nextConfig !== null && activeThemeRef.current === null) {
+        const initialTheme = resolveRuntimeTheme(nextConfig);
+        setActiveTheme(initialTheme);
+        setActiveTabs(nextConfig.tabs);
+      }
       setDoctors(nextDoctors);
       setLoadState(nextDoctors.length > 0 ? 'ready' : 'empty');
     } catch {
@@ -46,8 +48,8 @@ const BookScreenContainer = (_props: BookScreenProps): React.ReactElement => {
     <>
       <BookScreenView
         doctors={doctors}
-        theme={theme}
-        loadState={loadState}
+        theme={activeTheme}
+        loadState={activeTheme === null ? 'loading' : loadState}
         onRetry={() => { void load(); }}
         onChooseDoctor={(doctor) => setTarget({
           doctorId: doctor.id,
@@ -56,8 +58,8 @@ const BookScreenContainer = (_props: BookScreenProps): React.ReactElement => {
           feeInr: doctor.feeInr,
         })}
       />
-      {target !== null && config !== null ? (
-        <BookingScreen target={target} theme={resolveRuntimeTheme(config)} onClose={() => setTarget(null)} />
+      {target !== null && activeTheme !== null ? (
+        <BookingScreen target={target} theme={activeTheme} onClose={() => setTarget(null)} />
       ) : null}
     </>
   );

@@ -16,9 +16,22 @@ export const strings = {
     loadErrorTitle: 'We could not load your home screen',
     loadErrorMessage: 'Please check your connection and try again.',
     switchHint: 'Choose the home screen theme',
+    categoryComingSoon: {
+      title: (category: string): string => `${category} coming soon`,
+      message: 'This care category is under development.',
+      action: 'Got it',
+      hint: 'See information about this care category',
+    },
     loadingTheme: 'Loading selected theme',
     comingSoonHint: 'This screen is not part of the home screen slice yet.',
     openPrescriptionsHint: 'Open your prescriptions',
+    familyComingSoon: {
+      title: 'Family care is coming soon',
+      message: 'This feature is under development. Family care tools will be available in a future update.',
+      action: 'Got it',
+      hint: 'Learn about upcoming family care features',
+      badge: 'Coming soon',
+    },
   },
   booking: {
     pickDoctorTitle: 'Choose a doctor',

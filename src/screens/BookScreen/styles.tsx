@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { dimensions, spacing, typography } from '../../theme';
+import { dimensions, shadows, spacing, typography } from '../../theme';
 import { colors } from '../../theme/colors';
 
 const styles = StyleSheet.create({
@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: typography.h2, fontWeight: '700' },
   subtitle: { color: colors.textMuted, fontSize: typography.bodySmall, marginTop: spacing.xs },
   list: { gap: spacing.md, padding: spacing.lg },
-  card: { alignItems: 'center', borderColor: colors.border, borderRadius: dimensions.borderRadius, borderWidth: 1, flexDirection: 'row', gap: spacing.md, padding: spacing.md },
+  card: { alignItems: 'center', borderColor: colors.border, borderRadius: dimensions.borderRadius, borderWidth: 1, flexDirection: 'row', gap: spacing.md, padding: spacing.md, ...shadows.sm },
   avatar: { borderRadius: 28, height: 56, width: 56 },
   avatarSkeleton: { borderRadius: 28, height: 56, width: 56 },
   copy: { flex: 1, gap: spacing.xxs },

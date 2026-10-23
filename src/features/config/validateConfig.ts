@@ -30,7 +30,7 @@ const requireString = (value: unknown, path: string): string => {
   return value;
 };
 
-const parseAppScreen = (value: string, path: string): AppScreen => {
+const parseAppScreen = (value: string): AppScreen | null => {
   switch (value) {
     case 'home':
     case 'bookings':
@@ -39,7 +39,7 @@ const parseAppScreen = (value: string, path: string): AppScreen => {
     case 'profile':
       return value;
     default:
-      throw new ConfigValidationError(`${path} is unsupported.`);
+      return null;
   }
 };
 
@@ -74,14 +74,18 @@ const validateTheme = (value: unknown): LayoutTheme => {
   return festival === undefined ? themeColors : { ...themeColors, festival };
 };
 
-const validateTab = (value: unknown, index: number): LayoutTab => {
+const validateTab = (value: unknown, index: number): LayoutTab | null => {
   const path = `tabs[${index}]`;
   if (!isRecord(value)) throw new ConfigValidationError(`${path} must be an object.`);
-  const screen = parseAppScreen(requireString(value.screen, `${path}.screen`), `${path}.screen`);
+  const id = requireString(value.id, `${path}.id`);
+  const label = requireString(value.label, `${path}.label`);
+  const icon = requireString(value.icon, `${path}.icon`);
+  const screen = parseAppScreen(requireString(value.screen, `${path}.screen`));
+  if (screen === null) return null;
   return {
-    id: requireString(value.id, `${path}.id`),
-    label: requireString(value.label, `${path}.label`),
-    icon: requireString(value.icon, `${path}.icon`),
+    id,
+    label,
+    icon,
     screen,
   };
 };
@@ -139,10 +143,15 @@ export const validateLayoutConfig = (value: unknown): LayoutConfig => {
     throw new ConfigValidationError('sections must be an array.');
   }
 
+  const tabs = value.tabs.map(validateTab).filter((tab): tab is LayoutTab => tab !== null);
+  if (tabs.length === 0) {
+    throw new ConfigValidationError('tabs must include at least one supported screen.');
+  }
+
   return {
     version: value.version,
     theme: validateTheme(value.theme),
-    tabs: value.tabs.map(validateTab),
+    tabs,
     sections: value.sections.map(validateSection),
   };
 };

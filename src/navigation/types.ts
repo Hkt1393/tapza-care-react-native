@@ -3,16 +3,16 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type HomeStackParamList = {
-  Home: undefined;
+  HomeLanding: undefined;
 };
 
 export type PrescriptionsStackParamList = {
-  Prescriptions: undefined;
+  PrescriptionList: undefined;
   PrescriptionDetail: { prescriptionId: string };
 };
 
-export type BookStackParamList = { Book: undefined };
-export type DosesStackParamList = { Doses: undefined };
+export type BookStackParamList = { BookDirectory: undefined };
+export type DosesStackParamList = { DoseTracker: undefined };
 
 export type MainTabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList> | undefined;
@@ -22,22 +22,22 @@ export type MainTabParamList = {
 };
 
 export type HomeScreenProps = CompositeScreenProps<
-  NativeStackScreenProps<HomeStackParamList, 'Home'>,
+  NativeStackScreenProps<HomeStackParamList, 'HomeLanding'>,
   BottomTabScreenProps<MainTabParamList, 'Home'>
 >;
 
 export type PrescriptionsScreenProps = CompositeScreenProps<
-  NativeStackScreenProps<PrescriptionsStackParamList, 'Prescriptions'>,
+  NativeStackScreenProps<PrescriptionsStackParamList, 'PrescriptionList'>,
   BottomTabScreenProps<MainTabParamList, 'Prescriptions'>
 >;
 
 export type BookScreenProps = CompositeScreenProps<
-  NativeStackScreenProps<BookStackParamList, 'Book'>,
+  NativeStackScreenProps<BookStackParamList, 'BookDirectory'>,
   BottomTabScreenProps<MainTabParamList, 'Book'>
 >;
 
 export type DosesScreenProps = CompositeScreenProps<
-  NativeStackScreenProps<DosesStackParamList, 'Doses'>,
+  NativeStackScreenProps<DosesStackParamList, 'DoseTracker'>,
   BottomTabScreenProps<MainTabParamList, 'Doses'>
 >;
 

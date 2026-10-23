@@ -65,6 +65,51 @@ test('unknown section types are retained and malformed config is rejected', () =
   assert.throws(() => validateLayoutConfig({ ...source, theme: { ...source.theme, primary: 'green' } }), ConfigValidationError);
 });
 
+test('assignment tab values and the app-only Doses extension validate explicitly', () => {
+  const source = structuredClone(normalDayConfig);
+  source.tabs.push({ id: 'profile', label: 'Profile', icon: 'person', screen: 'profile' });
+  source.tabs.push({ id: 'future', label: 'Future', icon: 'future', screen: 'not-supported' });
+  const validated = validateLayoutConfig(source);
+
+  assert.deepEqual(validated.tabs.map((tab) => tab.screen), [
+    'home', 'bookings', 'prescriptions', 'doses', 'profile',
+  ]);
+
+  const unsupportedOnly = structuredClone(normalDayConfig);
+  unsupportedOnly.tabs = [{ id: 'future', label: 'Future', icon: 'future', screen: 'not-supported' }];
+  assert.throws(() => validateLayoutConfig(unsupportedOnly), ConfigValidationError);
+});
+
+test('a fetched config is validated and cached, then used after a later request failure', async () => {
+  const memory = createMemoryStorage();
+  const services = createMockDataAccess({ storage: memory });
+  const fetched = await services.fetchConfig();
+
+  assert.deepEqual(memory.values.get(LAST_VALID_CONFIG_KEY), fetched);
+  services.selectConfig('diwali');
+  services.configureNetwork({ failures: { config: true } });
+
+  const fallback = await services.fetchConfig();
+  assert.deepEqual(fallback, validateLayoutConfig(fetched));
+  assert.deepEqual(memory.values.get(LAST_VALID_CONFIG_KEY), fetched);
+});
+
+test('failed config fetch rejects when the stored fallback is malformed', async () => {
+  const memory = createMemoryStorage();
+  const services = createMockDataAccess({ storage: memory });
+  memory.values.set(LAST_VALID_CONFIG_KEY, { version: 1, theme: {}, tabs: [], sections: [] });
+  services.configureNetwork({ failures: { config: true } });
+
+  await assert.rejects(services.fetchConfig());
+});
+
+test('failed config fetch rejects when no valid cached config exists', async () => {
+  const services = createMockDataAccess({ storage: createMemoryStorage() });
+  services.configureNetwork({ failures: { config: true } });
+
+  await assert.rejects(services.fetchConfig());
+});
+
 test('invalid config does not replace the last validated cached config', async () => {
   const memory = createMemoryStorage();
   const services = createMockDataAccess({ storage: memory, now: () => '2026-10-23T12:00:00.000Z' });

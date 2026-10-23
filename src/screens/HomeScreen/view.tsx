@@ -1,5 +1,6 @@
 import type React from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { ActivityIndicator, Animated, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppPressable, AppText, SkeletonBlock } from '../../components';
@@ -10,8 +11,52 @@ import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
 import HomeSectionRenderer from '../../features/home/components/HomeSectionRenderer';
 import type { DoctorItem, ServiceItem } from '../../features/home/sectionData';
 import styles from './styles';
+import { getReducedMotionPreference } from '../../utils/motionPreference';
 
 type ConfigVariant = 'normal' | 'diwali';
+
+interface HomeSectionEntranceProps {
+  index: number;
+  children: React.ReactNode;
+}
+
+const HomeSectionEntrance = ({ index, children }: HomeSectionEntranceProps): React.ReactElement => {
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    let cancelled = false;
+    let animation: Animated.CompositeAnimation | undefined;
+    void getReducedMotionPreference().then((reduceMotion) => {
+      if (cancelled) return;
+      if (reduceMotion) {
+        progress.setValue(1);
+        return;
+      }
+      animation = Animated.timing(progress, {
+        toValue: 1,
+        delay: Math.min(index * 38, 190),
+        duration: 220,
+        useNativeDriver: true,
+      });
+      animation.start();
+    });
+    return () => {
+      cancelled = true;
+      animation?.stop();
+    };
+  }, [index, progress]);
+
+  return (
+    <Animated.View
+      style={{
+        opacity: progress,
+        transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }],
+      }}
+    >
+      {children}
+    </Animated.View>
+  );
+};
 
 export interface HomeScreenViewProps {
   config: LayoutConfig | null;
@@ -25,6 +70,7 @@ export interface HomeScreenViewProps {
   onVariantChange: (variant: ConfigVariant) => void;
   onDoctorPress: (doctor: DoctorItem) => void;
   onServicePress: (service: ServiceItem) => void;
+  onCategoryPress: (categoryLabel: string) => void;
   onQuickActionPress: (actionId: string) => void;
 }
 
@@ -40,6 +86,7 @@ const HomeScreenView = ({
   onVariantChange,
   onDoctorPress,
   onServicePress,
+  onCategoryPress,
   onQuickActionPress,
 }: HomeScreenViewProps): React.ReactElement => {
   const backgroundColor = theme?.background;
@@ -113,16 +160,18 @@ const HomeScreenView = ({
                 <AppText style={[styles.greetingText, { color: theme.textPrimary }]}>{heroGreeting}</AppText>
               </View>
             ) : null}
-            {config.sections.map((section) => (
-              <HomeSectionRenderer
-                key={section.id}
-                section={section}
-                theme={theme}
-                featuredDoctor={section.type === 'hero_banner' ? featuredDoctor ?? undefined : undefined}
-                onDoctorPress={onDoctorPress}
-                onServicePress={onServicePress}
-                onQuickActionPress={onQuickActionPress}
-              />
+            {config.sections.map((section, index) => (
+              <HomeSectionEntrance key={section.id} index={index}>
+                <HomeSectionRenderer
+                  section={section}
+                  theme={theme}
+                  featuredDoctor={section.type === 'hero_banner' ? featuredDoctor ?? undefined : undefined}
+                  onDoctorPress={onDoctorPress}
+                  onServicePress={onServicePress}
+                  onCategoryPress={onCategoryPress}
+                  onQuickActionPress={onQuickActionPress}
+                />
+              </HomeSectionEntrance>
             ))}
           </ScrollView>
 

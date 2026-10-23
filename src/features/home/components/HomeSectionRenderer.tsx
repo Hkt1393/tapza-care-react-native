@@ -1,6 +1,8 @@
 import type React from 'react';
 import { Image, ImageBackground, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
+import type { IoniconsIconName } from '@react-native-vector-icons/ionicons';
 
 import { AppPressable, AppText } from '../../../components';
 import type { LayoutSection } from '../../../types/domain';
@@ -17,6 +19,7 @@ interface HomeSectionRendererProps {
   featuredDoctor?: DoctorItem;
   onDoctorPress?: (doctor: DoctorItem) => void;
   onServicePress?: (service: ServiceItem) => void;
+  onCategoryPress?: (categoryLabel: string) => void;
   onQuickActionPress?: (actionId: string) => void;
 }
 
@@ -83,26 +86,51 @@ const SectionHeading = ({
 
 const getPriceLabel = (priceInr: number): string => `₹${priceInr.toLocaleString('en-IN')}`;
 
-const getActionGlyph = (id: string): string => {
-  switch (id) {
-    case 'book': return '▦';
-    case 'prescriptions': return '▤';
-    case 'reminders': return '◷';
-    case 'family': return '♧';
-    default: return '•';
-  }
+interface CategoryChipListProps {
+  items: ReadonlyArray<{ id: string; label: string }>;
+  theme: RuntimeThemeTokens;
+  onPress?: (categoryLabel: string) => void;
+}
+
+const CategoryChipList = ({ items, theme, onPress }: CategoryChipListProps): React.ReactElement => (
+  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+    {items.map((item) => (
+      <AppPressable
+        key={item.id}
+        accessibilityRole="button"
+        accessibilityLabel={item.label}
+        accessibilityHint={strings.home.categoryComingSoon.hint}
+        accessibilityState={{ disabled: onPress === undefined }}
+        disabled={onPress === undefined}
+        onPress={() => onPress?.(item.label)}
+        style={[styles.categoryChip, { backgroundColor: theme.surface, borderColor: theme.border }]}
+      >
+        <AppText style={[styles.categoryLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
+      </AppPressable>
+    ))}
+  </ScrollView>
+);
+
+const actionIcons: Readonly<Record<string, IoniconsIconName>> = {
+  book: 'calendar-outline',
+  prescriptions: 'document-text-outline',
+  reminders: 'alarm-outline',
+  family: 'people-outline',
 };
 
-const HomeSectionRenderer = ({ section, theme, featuredDoctor, onDoctorPress, onServicePress, onQuickActionPress }: HomeSectionRendererProps): React.ReactElement | null => {
+const getActionIcon = (id: string): IoniconsIconName => actionIcons[id] ?? 'help-circle-outline';
+
+const HomeSectionRenderer = ({ section, theme, featuredDoctor, onDoctorPress, onServicePress, onCategoryPress, onQuickActionPress }: HomeSectionRendererProps): React.ReactElement | null => {
   const model = getHomeSectionModel(section);
   if (model === null) return null;
   const background = resolveSectionBackground(section.background, theme);
   const foreground = background.foreground;
 
   return (
-    <View style={[styles.section, section.type === 'hero_banner' && styles.heroSection]}>
-      <SectionBackgroundLayer section={section} theme={theme} />
-      <View style={styles.sectionContent}>
+    <View style={[styles.sectionFrame, section.type === 'hero_banner' && styles.heroFrame]}>
+      <View style={[styles.section, section.type === 'hero_banner' && styles.heroSection]}>
+        <SectionBackgroundLayer section={section} theme={theme} />
+        <View style={styles.sectionContent}>
         {model.type === 'hero_banner' ? (
           <View style={styles.heroContent}>
             <AppText style={[styles.heroTitle, { color: foreground }]}>
@@ -131,16 +159,14 @@ const HomeSectionRenderer = ({ section, theme, featuredDoctor, onDoctorPress, on
         ) : null}
 
         {model.type === 'category_chips' ? (
-          <>
+          <View>
             <SectionHeading title={section.title} color={foreground} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-              {model.items.map((item) => (
-                <View key={item.id} style={[styles.categoryChip, { backgroundColor: theme.surfaceTint }]}>
-                  <AppText style={[styles.categoryLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
-                </View>
-              ))}
-            </ScrollView>
-          </>
+            <CategoryChipList
+              items={model.items}
+              theme={theme}
+              onPress={onCategoryPress}
+            />
+          </View>
         ) : null}
 
         {model.type === 'quick_actions' ? (
@@ -149,10 +175,14 @@ const HomeSectionRenderer = ({ section, theme, featuredDoctor, onDoctorPress, on
             <View style={styles.actionGrid}>
               {model.items.map((item) => {
                 const isSupportedAction = onQuickActionPress !== undefined
-                  && (item.id === 'book' || item.id === 'prescriptions' || item.id === 'reminders');
+                  && (item.id === 'book' || item.id === 'prescriptions' || item.id === 'reminders' || item.id === 'family');
                 const actionHint = item.id === 'book'
                   ? strings.booking.actions.bookDoctor
-                  : item.id === 'reminders' ? strings.doses.openHint : strings.home.openPrescriptionsHint;
+                  : item.id === 'reminders'
+                    ? strings.doses.openHint
+                    : item.id === 'family'
+                      ? strings.home.familyComingSoon.hint
+                      : strings.home.openPrescriptionsHint;
                 return (
                   <AppPressable
                     key={item.id}
@@ -165,9 +195,19 @@ const HomeSectionRenderer = ({ section, theme, featuredDoctor, onDoctorPress, on
                     style={[styles.actionTile, { backgroundColor: theme.surface }]}
                   >
                     <View style={[styles.actionIcon, { backgroundColor: theme.surfaceTint }]}>
-                      <AppText style={[styles.actionInitial, { color: theme.primary }]}>{getActionGlyph(item.id)}</AppText>
+                      <Ionicons
+                        name={getActionIcon(item.id)}
+                        color={theme.primary}
+                        size={20}
+                        accessible={false}
+                      />
                     </View>
                     <AppText style={[styles.actionLabel, { color: theme.textPrimary }]}>{item.label}</AppText>
+                    {item.id === 'family' ? (
+                      <AppText style={[styles.comingSoonBadge, { backgroundColor: theme.surfaceTint, color: theme.textSecondary }]}>
+                        {strings.home.familyComingSoon.badge}
+                      </AppText>
+                    ) : null}
                   </AppPressable>
                 );
               })}
@@ -258,6 +298,7 @@ const HomeSectionRenderer = ({ section, theme, featuredDoctor, onDoctorPress, on
             </View>
           </View>
         ) : null}
+        </View>
       </View>
     </View>
   );

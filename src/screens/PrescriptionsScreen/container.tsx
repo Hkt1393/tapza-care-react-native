@@ -70,7 +70,7 @@ const PrescriptionsScreenContainer = ({ navigation }: Props): React.ReactElement
       loadState={loadState}
       onOpen={(prescriptionId) => navigation.navigate('PrescriptionDetail', { prescriptionId })}
       onRetry={() => { void load(); }}
-      onBack={() => navigation.navigate('Home', { screen: 'Home' })}
+      onBack={() => navigation.navigate('Home', { screen: 'HomeLanding' })}
     />
   );
 };
