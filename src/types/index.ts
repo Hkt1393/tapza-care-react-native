@@ -5,4 +5,6 @@ export interface ExampleItem {
   body: string;
 }
 
+export * from './domain';
+
 export type ScreenState = 'idle' | 'loading' | 'success' | 'error' | 'empty';
