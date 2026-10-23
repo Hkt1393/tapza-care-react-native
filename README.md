@@ -2,7 +2,7 @@
 
 The installable Android build for Tapza Care is available through Expo EAS.
 
-**Build link:** https://expo.dev/accounts/hk1309/projects/tapza-care/builds/91a1f645-a350-4790-be70-070c4e0b36c1
+**Build link:** https://expo.dev/accounts/hk1309/projects/RnBaseProject/builds/c4358050-8158-40bf-b022-d2464af9ad7f
 
 ### Installation
 1. Open the Expo build link.
