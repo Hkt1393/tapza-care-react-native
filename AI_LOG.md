@@ -23,3 +23,13 @@
 - Decision: reserve optimistically in the view model, guard submissions with a synchronous ref, then reconcile availability from the mock data-access boundary. A typed 409 marks the slot unavailable; other failures restore the authoritative availability and allow retry.
 - Trade-off: dates are offered for the next seven local calendar days, while deterministic mock slots currently exist only on their fixture date. Other dates intentionally exercise the empty-slots state.
 - Verification limitation: TypeScript and automated tests cover the flow's data contract and conflict/failure behavior; no iOS simulator or Android device visual check was available during this slice.
+
+## Slice 4: prescriptions and dose tracking
+
+- Prompt: build prescription list/detail and session dose tracking using the existing mock service, with typed navigation, loading/error/empty/retry behavior, accessibility, focused tests, and no notification work; also make booking availability deliberate across dates.
+- Decision: add React Navigation 7 native stack because this branch had no navigation dependency or typed route layer. `react-native-screens` was installed at the Expo SDK 57 compatible version; the existing safe-area package was reused.
+- Decision: keep taken-dose state inside the mock state factory and expose typed read/update methods through `mockDataAccess`. Screen containers update from the returned service state; returning to the list reloads progress on focus.
+- Decision: store a taken dose by prescription, medicine, and scheduled timing; reject updates for dose timings absent from the prescription, and remove the key to undo a dose.
+- Decision: extend deterministic booking availability through October 26, 2026. Later offered dates remain explicit empty states, and confirmation is possible only for an available returned slot.
+- Trade-off: dose state is session-only, as required; it resets when the mock data-access instance resets or the app process restarts.
+- Verification limitation: TypeScript and automated state/navigation type checks passed; no iOS simulator or Android device visual check was available. Notifications remain intentionally out of scope.

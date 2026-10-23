@@ -11,6 +11,12 @@ export const slotFixtures: readonly Slot[] = [
   { id: 'slot-ananya-0930', doctorId: 'doctor-ananya-rao', startsAt: '2026-10-24T09:30:00+05:30', endsAt: '2026-10-24T09:50:00+05:30', available: true },
   { id: 'slot-arjun-1030', doctorId: 'doctor-arjun-reddy', startsAt: '2026-10-24T10:30:00+05:30', endsAt: '2026-10-24T10:50:00+05:30', available: true },
   { id: 'slot-meera-1100', doctorId: 'doctor-meera-iyer', startsAt: '2026-10-24T11:00:00+05:30', endsAt: '2026-10-24T11:20:00+05:30', available: true },
+  { id: 'slot-ananya-251000', doctorId: 'doctor-ananya-rao', startsAt: '2026-10-25T10:00:00+05:30', endsAt: '2026-10-25T10:20:00+05:30', available: true },
+  { id: 'slot-arjun-250900', doctorId: 'doctor-arjun-reddy', startsAt: '2026-10-25T09:00:00+05:30', endsAt: '2026-10-25T09:20:00+05:30', available: true },
+  { id: 'slot-meera-251300', doctorId: 'doctor-meera-iyer', startsAt: '2026-10-25T13:00:00+05:30', endsAt: '2026-10-25T13:20:00+05:30', available: true },
+  { id: 'slot-ananya-260930', doctorId: 'doctor-ananya-rao', startsAt: '2026-10-26T09:30:00+05:30', endsAt: '2026-10-26T09:50:00+05:30', available: true },
+  { id: 'slot-arjun-261100', doctorId: 'doctor-arjun-reddy', startsAt: '2026-10-26T11:00:00+05:30', endsAt: '2026-10-26T11:20:00+05:30', available: true },
+  { id: 'slot-meera-261000', doctorId: 'doctor-meera-iyer', startsAt: '2026-10-26T10:00:00+05:30', endsAt: '2026-10-26T10:20:00+05:30', available: true },
 ];
 
 export const prescriptionFixtures: readonly Prescription[] = [

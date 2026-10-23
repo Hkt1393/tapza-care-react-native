@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { strings } from '../../constants/strings';
 import { colors } from '../../theme/colors';
-import type { LayoutConfig } from '../../types/domain';
+import type { AppScreen, LayoutConfig } from '../../types/domain';
 import type { RuntimeThemeTokens } from '../../theme/runtimeTheme';
 import HomeSectionRenderer from '../../features/home/components/HomeSectionRenderer';
 import type { DoctorItem, ServiceItem } from '../../features/home/sectionData';
@@ -22,6 +22,7 @@ export interface HomeScreenViewProps {
   onVariantChange: (variant: ConfigVariant) => void;
   onDoctorPress: (doctor: DoctorItem) => void;
   onServicePress: (service: ServiceItem) => void;
+  onTabPress: (screen: AppScreen) => void;
 }
 
 const getTabGlyph = (icon: string): string => {
@@ -44,6 +45,7 @@ const HomeScreenView = ({
   onVariantChange,
   onDoctorPress,
   onServicePress,
+  onTabPress,
 }: HomeScreenViewProps): React.ReactElement => {
   const backgroundColor = theme?.background;
   const baseBackground = backgroundColor ?? colors.background;
@@ -135,14 +137,16 @@ const HomeScreenView = ({
           <View style={[styles.tabBar, { backgroundColor: theme.surface, borderTopColor: theme.textSecondary }]}>
             {config.tabs.map((tab) => {
               const selected = tab.screen === 'home';
+              const enabled = tab.screen === 'home' || tab.screen === 'prescriptions';
               return (
                 <Pressable
                   key={tab.id}
                   accessibilityRole="tab"
                   accessibilityLabel={tab.label}
-                  accessibilityHint={selected ? undefined : strings.home.comingSoonHint}
-                  accessibilityState={{ selected, disabled: !selected }}
-                  disabled={!selected}
+                  accessibilityHint={enabled ? undefined : strings.home.comingSoonHint}
+                  accessibilityState={{ selected, disabled: !enabled }}
+                  disabled={!enabled}
+                  onPress={() => onTabPress(tab.screen)}
                   style={styles.tabItem}
                 >
                   <Text style={[styles.tabGlyph, { color: selected ? theme.primary : mutedText }]}>{getTabGlyph(tab.icon)}</Text>

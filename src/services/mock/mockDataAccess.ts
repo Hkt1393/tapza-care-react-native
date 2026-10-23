@@ -4,6 +4,8 @@ import type {
   Booking,
   BookingRequest,
   Doctor,
+  DoseTakenState,
+  DoseTakenUpdate,
   LayoutConfig,
   MockNetworkSettings,
   MockOperation,
@@ -27,6 +29,8 @@ export interface MockDataAccess {
   fetchSlots(doctorId: string, date: string): Promise<Slot[]>;
   createBooking(request: BookingRequest): Promise<Booking>;
   fetchPrescriptions(): Promise<Prescription[]>;
+  fetchDoseTakenState(prescriptionId: string): Promise<DoseTakenState>;
+  setDoseTakenState(update: DoseTakenUpdate): Promise<DoseTakenState>;
   configureNetwork(settings: Partial<MockNetworkSettings>): void;
   getNetworkSettings(): MockNetworkSettings;
   selectConfig(config: keyof typeof configFixtures): void;
@@ -104,6 +108,16 @@ export const createMockDataAccess = (options: MockDataAccessOptions = {}): MockD
     return network.isEmpty('prescriptions') ? [] : prescriptionFixtures.map(copyPrescription);
   };
 
+  const fetchDoseTakenState = async (prescriptionId: string): Promise<DoseTakenState> => {
+    await request('prescriptions');
+    return state.getDoseTakenState(prescriptionId);
+  };
+
+  const setDoseTakenState = async (update: DoseTakenUpdate): Promise<DoseTakenState> => {
+    await request('prescriptions');
+    return state.setDoseTakenState(update);
+  };
+
   const reset = (): void => {
     network.reset();
     state.reset();
@@ -117,6 +131,8 @@ export const createMockDataAccess = (options: MockDataAccessOptions = {}): MockD
     fetchSlots,
     createBooking,
     fetchPrescriptions,
+    fetchDoseTakenState,
+    setDoseTakenState,
     configureNetwork: network.configure,
     getNetworkSettings: network.getSettings,
     selectConfig: (config) => { selectedConfig = config; },

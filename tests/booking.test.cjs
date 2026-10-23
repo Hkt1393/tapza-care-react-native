@@ -61,3 +61,14 @@ test('concurrent attempts to reserve one slot produce one booking and one 409 co
   assert.equal(rejected.reason.name, 'BookingConflictError');
   assert.equal(rejected.reason.statusCode, 409);
 });
+
+test('booking fixtures provide deterministic availability on multiple dates', async () => {
+  const services = createMockDataAccess();
+  const firstDate = await services.fetchSlots('doctor-ananya-rao', '2026-10-24');
+  const secondDate = await services.fetchSlots('doctor-ananya-rao', '2026-10-25');
+  const thirdDate = await services.fetchSlots('doctor-ananya-rao', '2026-10-26');
+
+  assert.ok(firstDate.length > 0);
+  assert.ok(secondDate.length > 0);
+  assert.ok(thirdDate.length > 0);
+});

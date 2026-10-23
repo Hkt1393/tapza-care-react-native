@@ -92,6 +92,24 @@ export interface Prescription {
 
 export type DoseTakenState = Record<string, boolean>;
 
+export interface DoseTakenUpdate {
+  prescriptionId: string;
+  medicineId: string;
+  timing: MedicineTiming;
+  taken: boolean;
+}
+
+export const getDoseTrackingKey = (
+  dose: Pick<DoseTakenUpdate, 'prescriptionId' | 'medicineId' | 'timing'>,
+): string => `${dose.prescriptionId}::${dose.medicineId}::${dose.timing}`;
+
+export class DoseTrackingError extends Error {
+  constructor() {
+    super('The requested dose is not part of this prescription.');
+    this.name = 'DoseTrackingError';
+  }
+}
+
 export type MockOperation =
   | 'config'
   | 'doctors'
