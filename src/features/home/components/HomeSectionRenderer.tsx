@@ -1,5 +1,5 @@
 import type React from 'react';
-import { Image, ImageBackground, ScrollView, Text, View } from 'react-native';
+import { Image, ImageBackground, Pressable, ScrollView, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import type { LayoutSection } from '../../../types/domain';
@@ -7,11 +7,14 @@ import type { RuntimeThemeTokens } from '../../../theme/runtimeTheme';
 import { resolveSectionBackground } from '../../../theme/runtimeTheme';
 import { strings } from '../../../constants/strings';
 import { getHomeSectionModel } from '../sectionData';
+import type { DoctorItem, ServiceItem } from '../sectionData';
 import styles from './homeSectionStyles';
 
 interface HomeSectionRendererProps {
   section: LayoutSection;
   theme: RuntimeThemeTokens;
+  onDoctorPress?: (doctor: DoctorItem) => void;
+  onServicePress?: (service: ServiceItem) => void;
 }
 
 const parseGradientStops = (value: string): [string, string, ...string[]] | null => {
@@ -87,7 +90,7 @@ const getActionGlyph = (id: string): string => {
   }
 };
 
-const HomeSectionRenderer = ({ section, theme }: HomeSectionRendererProps): React.ReactElement | null => {
+const HomeSectionRenderer = ({ section, theme, onDoctorPress, onServicePress }: HomeSectionRendererProps): React.ReactElement | null => {
   const model = getHomeSectionModel(section);
   if (model === null) return null;
   const background = resolveSectionBackground(section.background, theme);
@@ -145,7 +148,15 @@ const HomeSectionRenderer = ({ section, theme }: HomeSectionRendererProps): Reac
             <SectionHeading title={section.title} color={foreground} />
             <View style={styles.serviceGrid}>
               {model.items.map((item) => (
-                <View key={item.id} style={[styles.serviceCard, { backgroundColor: theme.surface }]}>
+                <Pressable
+                  key={item.id}
+                  accessibilityRole={item.doctorId && onServicePress ? 'button' : undefined}
+                  accessibilityLabel={item.doctorId ? strings.booking.serviceAccessibility(item.name) : item.name}
+                  accessibilityHint={item.doctorId && onServicePress ? strings.booking.actions.bookService : undefined}
+                  disabled={!item.doctorId || onServicePress === undefined}
+                  onPress={() => onServicePress?.(item)}
+                  style={[styles.serviceCard, { backgroundColor: theme.surface }]}
+                >
                   <Image
                     source={{ uri: item.imageUrl }}
                     style={styles.serviceImage}
@@ -155,7 +166,7 @@ const HomeSectionRenderer = ({ section, theme }: HomeSectionRendererProps): Reac
                   {item.badge ? <Text style={[styles.serviceBadge, { color: theme.onAccent, backgroundColor: theme.accent }]}>{item.badge}</Text> : null}
                   <Text style={[styles.serviceName, { color: theme.textPrimary }]}>{item.name}</Text>
                   <Text style={[styles.servicePrice, { color: theme.primary }]}>{getPriceLabel(item.priceInr)}</Text>
-                </View>
+                </Pressable>
               ))}
             </View>
           </>
@@ -166,13 +177,21 @@ const HomeSectionRenderer = ({ section, theme }: HomeSectionRendererProps): Reac
             <SectionHeading title={section.title} color={foreground} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.doctorRow}>
               {model.items.map((doctor) => (
-                <View key={doctor.id} style={[styles.doctorCard, { backgroundColor: theme.surface }]}>
+                <Pressable
+                  key={doctor.id}
+                  accessibilityRole={onDoctorPress ? 'button' : undefined}
+                  accessibilityLabel={strings.booking.doctorAccessibility(doctor.name)}
+                  accessibilityHint={strings.booking.actions.bookDoctor}
+                  disabled={onDoctorPress === undefined}
+                  onPress={() => onDoctorPress?.(doctor)}
+                  style={[styles.doctorCard, { backgroundColor: theme.surface }]}
+                >
                   <Image source={{ uri: doctor.photoUrl }} style={styles.doctorImage} accessibilityRole="image" accessibilityLabel={doctor.name} />
                   <Text style={[styles.doctorName, { color: theme.textPrimary }]}>{doctor.name}</Text>
                   <Text style={[styles.doctorSpecialty, { color: theme.textSecondary }]}>{doctor.specialty}</Text>
                   <Text style={[styles.doctorAvailability, { color: theme.primary }]}>{doctor.nextAvailableAt}</Text>
                   <Text style={[styles.doctorFee, { color: theme.textPrimary }]}>{getPriceLabel(doctor.feeInr)}</Text>
-                </View>
+                </Pressable>
               ))}
             </ScrollView>
           </>

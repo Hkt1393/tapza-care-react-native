@@ -19,7 +19,7 @@ const normalDayPayload: unknown = {
     { id: 'hero', type: 'hero_banner', background: { kind: 'gradient', value: '#146C62,#164E63' }, title: 'Care that fits your day', items: [{ greeting: 'Good morning', subtitle: 'Your family’s care, all in one place' }] },
     { id: 'categories', type: 'category_chips', background: { kind: 'color', value: '#F3F8F6' }, title: 'Explore care', items: [{ id: 'consult', label: 'Consult' }, { id: 'tests', label: 'Lab tests' }, { id: 'pharmacy', label: 'Pharmacy' }, { id: 'vaccines', label: 'Vaccines' }] },
     { id: 'quick-actions', type: 'quick_actions', background: { kind: 'color', value: '#FFFFFF' }, title: 'Quick actions', items: [{ id: 'book', label: 'Book a doctor' }, { id: 'prescriptions', label: 'Prescriptions' }, { id: 'reminders', label: 'Reminders' }, { id: 'family', label: 'Family' }] },
-    { id: 'services', type: 'service_grid', background: { kind: 'color', value: '#F3F8F6' }, title: 'Popular services', items: [{ id: 'home-test', name: 'Home blood test', imageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=600', priceInr: 499, badge: 'Popular' }, { id: 'health-check', name: 'Health check-up', imageUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=600', priceInr: 1299 }] },
+    { id: 'services', type: 'service_grid', background: { kind: 'color', value: '#F3F8F6' }, title: 'Popular services', items: [{ id: 'home-test', name: 'Home blood test', imageUrl: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=600', priceInr: 499, badge: 'Popular', doctorId: 'doctor-ananya-rao' }, { id: 'health-check', name: 'Health check-up', imageUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=600', priceInr: 1299, doctorId: 'doctor-arjun-reddy' }] },
     {
       id: 'doctors', type: 'doctor_carousel', background: { kind: 'color', value: '#FFFFFF' }, title: 'Doctors near you',
       items: [
@@ -53,7 +53,7 @@ const diwaliPayload: unknown = {
         { id: 'doctor-meera-iyer', name: 'Dr. Meera Iyer', specialty: 'Pediatrician', photoUrl: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400', feeInr: 700, nextAvailableAt: 'Today, 11:00 AM' },
       ],
     },
-    { id: 'diwali-services', type: 'service_grid', background: { kind: 'color', value: '#FFF8ED' }, title: 'Festival wellness', items: [{ id: 'festive-check', name: 'Festive wellness check', imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600', priceInr: 799, badge: 'Festival offer' }] },
+    { id: 'diwali-services', type: 'service_grid', background: { kind: 'color', value: '#FFF8ED' }, title: 'Festival wellness', items: [{ id: 'festive-check', name: 'Festive wellness check', imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600', priceInr: 799, badge: 'Festival offer', doctorId: 'doctor-meera-iyer' }] },
     { id: 'diwali-categories', type: 'category_chips', background: { kind: 'color', value: '#FFFFFF' }, title: 'Explore care', items: [{ id: 'consult', label: 'Consult' }, { id: 'tests', label: 'Lab tests' }, { id: 'pharmacy', label: 'Pharmacy' }, { id: 'vaccines', label: 'Vaccines' }] },
   ],
 };

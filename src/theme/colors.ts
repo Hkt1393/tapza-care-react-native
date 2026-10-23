@@ -13,4 +13,5 @@ export const colors = {
   warning: '#F59E0B',
   white: '#FFFFFF',
   black: '#000000',
+  overlay: 'rgba(0, 0, 0, 0.42)',
 } as const;
