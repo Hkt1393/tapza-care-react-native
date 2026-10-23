@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "RnBaseProject",
-    "slug": "RnBaseProject",
-    "version": "1.0.0",
+    "name": "Tapza Care",
+    "slug": "tapza-care",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -39,6 +39,12 @@
       "eas": {
         "projectId": "e499e7e2-4cf2-40f5-93d6-d410cafa046c"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e499e7e2-4cf2-40f5-93d6-d410cafa046c"
     }
   }
 }

@@ -33,3 +33,36 @@
 - Decision: extend deterministic booking availability through October 26, 2026. Later offered dates remain explicit empty states, and confirmation is possible only for an available returned slot.
 - Trade-off: dose state is session-only, as required; it resets when the mock data-access instance resets or the app process restarts.
 - Verification limitation: TypeScript and automated state/navigation type checks passed; no iOS simulator or Android device visual check was available. Notifications remain intentionally out of scope.
+
+## Persistent bottom navigation
+
+- Prompt: replace the screen-owned tab bar with a typed React Navigation bottom-tab architecture, keep only implemented destinations, nest prescription detail under Prescriptions, and preserve staged and unstaged work.
+- Decision: use React Navigation 7 bottom tabs with a stack per supported tab. Home and Prescriptions are registered; PrescriptionDetail stays in the Prescriptions stack. The booking sheet remains a Home-launched flow, while Bookings, Doses, and Family are not registered as tabs because they do not have tab-level screens.
+- Decision: share the active validated runtime theme and configured tab labels with the navigator so tab colors and labels follow normal/Diwali config changes. The native tab bar handles selected state, safe-area insets, tab presses, and Android back behavior.
+- Dependency: add `@react-navigation/bottom-tabs` 7.x to match the installed React Navigation 7 packages. The package peer requirements are satisfied by the installed React Native and safe-area packages.
+- Verification limitation: automated checks cover TypeScript and the existing focused suite; simulator/device interaction could not be verified in this environment.
+
+## Supported Book and Doses tabs
+
+- Prompt: bring the persistent bottom navigation closer to the approved five-tab design, adding Book and Doses only where existing assignment behavior supports them; preserve booking and dose state and do not invent Family functionality.
+- Decision: Book is a typed tab with a doctor-selection screen that fetches the existing doctor fixtures and opens the existing BookingScreen. It reuses the current date, slot, conflict, and confirmation flow rather than duplicating booking logic.
+- Decision: Doses is a typed tab that aggregates scheduled medicine doses from prescriptions and reads/writes their taken state exclusively through the existing mock data-access service. Returning to the tab reloads service state, keeping it consistent with Prescription Detail.
+- Decision: Home's existing Reminders quick action routes to Doses. Family stays unavailable because the repository has no family screen, member model, or service contract; Profile was removed from fixture tabs because no supported screen exists.
+- Dependency: use the already added React Navigation 7 bottom-tabs package; no further packages were needed.
+- Verification limitation: automated checks validate types and service behavior; no running simulator/device was available for interaction or visual verification.
+
+## Bottom-tab icon family
+
+- Prompt: replace text glyphs in the supported bottom tabs with consistent filled/outline vector icons, using the navigator's selected state and runtime colors; do not add unsupported destinations.
+- Decision: use the scoped `@react-native-vector-icons/ionicons` family, whose typed glyph map verifies each selected filled/outline pair: `home`/`home-outline`, `calendar`/`calendar-outline`, `document-text`/`document-text-outline`, and `bandage`/`bandage-outline`.
+- Decision: use the package's dynamic Expo import. Its Expo setup guide supports dynamic loading from SDK 52 onward, so Expo SDK 57 requires no new app config plugin or generated native-project changes. Keep Family out of the icon map because no Family route is registered.
+- Rejected: Unicode glyphs and emoji because platform font rendering varies; `@expo/vector-icons` because it was not an existing direct dependency.
+
+## Premium shadows and micro-animations
+
+- Prompt: add restrained design-system shadows and short touch, Home entrance, tab-selection, and booking-success feedback; respect reduced motion and avoid adding another animation dependency.
+- Decision: reuse React Native `Animated` with the native driver for transforms and opacity. Reanimated was not installed, so no animation dependency was added.
+- Decision: centralize iOS shadow recipes and Android elevation in `src/theme/shadows.ts`; apply them to existing cards, the Home hero, and the booking sheet without changing screen behavior.
+- Decision: add a small shared reduced-motion preference reader and keep press scale opt-out available for the booking backdrop. Home entrances run once on initial mount with a capped stagger; tab feedback is brief and does not delay navigation.
+- Rejected: category-chip state transitions because the current chips do not implement selected-category behavior; adding one would change functionality beyond visual polish.
+- Verification limitation: device rendering and animation performance could not be checked on iOS or Android in this environment.
